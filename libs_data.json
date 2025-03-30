@@ -1,0 +1,15 @@
+{
+    "libraries_data": [
+        {
+            "name": "Sasha",
+            "city": "Omsk",
+            "address": "st. Dem. Bednogo, 93"
+        },
+        {
+            "name": "shukolza",
+            "city": "shukolza",
+            "address": "shukolza"
+        }
+    ],
+    "administrator_password": "ec0367eaa13fac30a8d165971d7f3d417b64a42330d4e3b1fb8d5793b1bbec14$020700efb9727ce3eaa720afd7f5dbb57324c922b3ad1c26fae0e77604220d63"
+}

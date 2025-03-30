@@ -1,0 +1,23 @@
+# Log
+log.txt
+
+# snap2txt file
+project_contents.txt
+
+# Python venv's folders
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Vscode settings
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
