@@ -47,7 +47,7 @@ if __name__ == "__main__":
             error_root.withdraw()
             from tkinter import messagebox
 
-            messagebox.showerror("CRITICAL ERROR", f"An critical error occurred:\n{e}\n\nApplication will be interputted\n Contact system administrator")  # type: ignore
+            messagebox.showerror("CRITICAL ERROR", f"A critical error occurred:\n{e}\n\nApplication will be interputted\n Contact system administrator")  # type: ignore
             error_root.destroy()
 
         except:
