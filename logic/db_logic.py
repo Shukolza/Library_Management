@@ -95,6 +95,19 @@ class LibraryDatabase:
 
         self._libs_data.append({"name": name, "city": city, "address": address})
 
+    def get_readable_libs_info(self) -> list[tuple[str, str, str]]:
+        """Get readable info of all libraries
+        Returns:
+            list of tuples (name, city, address)
+        """
+        libs_info: list[tuple[str, str, str]] = []
+
+        for lib in self._libs_data:
+            libs_info.append((lib["name"], lib["city"], lib["address"]))
+        
+        return libs_info
+
+
     def update_admin_password(self, new_password: str) -> None:
         """Hash and update the administrator password."""
         if not new_password:
