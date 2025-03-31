@@ -12,7 +12,7 @@ from config import DB_PATH
 if __name__ == "__main__":
     # Logging setup
     log_file = resource_path("./log.txt")
-    log_level = logging.INFO
+    log_level = logging.DEBUG
     log_format = "%(asctime)s - %(levelname)s - %(module)s - %(message)s"
 
     logging.basicConfig(
