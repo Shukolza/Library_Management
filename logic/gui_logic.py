@@ -2,6 +2,7 @@
 
 import logging
 import tkinter as tk
+import webbrowser as web
 from tkinter import ttk
 from tkinter import messagebox
 
@@ -27,18 +28,33 @@ class AdminMainWindow(tk.Tk):
             self,
             text="Welcome, administrator.\n Please select an option below.",
             font=("Arial", 14),
+            anchor="center",
         )
-        title.grid(row=0, column=0, padx=225, pady=50)
+        title.grid(row=0, column=0, columnspan=2, pady=50, sticky="ew")
 
         button_create = ttk.Button(
             self,
             text="Create new library",
             command=lambda: init_create_library_window(self._libraries_db, self),
         )
-        button_create.grid(column=0, row=1)
+        button_create.grid(column=0, row=1, columnspan=2, pady=10)
 
         update_button = ttk.Button(self, text="Update DB", command=self.update_db)
         update_button.grid(row=0, column=1, padx=10, pady=10, sticky="ne")
+
+        contact_button = ttk.Button(
+            self,
+            text="Contact developer",
+            command=lambda: web.open("https://github.com/Shukolza", new=2),
+        )
+        contact_button.grid(row=2, column=1, sticky="se", padx=10, pady=10)
+
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=0)
+        self.rowconfigure(1, weight=0)
+        self.rowconfigure(2, weight=1)
+        # -------------------------------------------------------
 
     def update_db(self) -> None:
         logging.debug("Updating DB...")
