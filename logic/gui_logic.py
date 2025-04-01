@@ -37,7 +37,14 @@ class AdminMainWindow(tk.Tk):
             text="Create new library",
             command=lambda: init_create_library_window(self._libraries_db, self),
         )
-        button_create.grid(column=0, row=1, columnspan=2, pady=10)
+        button_create.grid(column=0, row=1, pady=10, sticky="e")
+
+        libs_list_button = ttk.Button(
+            self,
+            text="Libraries list",
+            command=lambda: list_libs_window(self._libraries_db, self),
+        )
+        libs_list_button.grid(column=1, row=1, pady=10, sticky="w", padx=10)
 
         update_button = ttk.Button(self, text="Update DB", command=self.update_db)
         update_button.grid(row=0, column=1, padx=10, pady=10, sticky="ne")
@@ -49,12 +56,11 @@ class AdminMainWindow(tk.Tk):
         )
         contact_button.grid(row=2, column=1, sticky="se", padx=10, pady=10)
 
-        self.columnconfigure(0, weight=0)
+        self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=0)
         self.rowconfigure(2, weight=1)
-        # -------------------------------------------------------
 
     def update_db(self) -> None:
         logging.debug("Updating DB...")
@@ -300,3 +306,35 @@ def ask_for_password(db: LibraryDatabase) -> bool:
     logging.debug(f"ask_for_password: returning {password_ok}")
 
     return password_ok
+
+
+def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
+    """Create a window to list all libraries in the database."""
+    logging.info("list_libs_window: Called, getting libs info...")
+    libs_info = db.get_readable_libs_info()
+    logging.debug(f"list_libs_window: libs_info: {libs_info}")
+    if len(libs_info) < 1:
+        logging.info("list_libs_window: No libraries found.")
+        messagebox.showinfo("No libs found", "No libraries to show!")  # type: ignore
+        return
+    logging.debug("list_libs_window: Creating toplevel...")
+    list_window = tk.Toplevel(root)
+    list_window.title("Library List")
+    list_window.geometry("400x600")
+    logging.info("list_libs_window: Creating widgets...")
+
+    title = ttk.Label(list_window, text="Libraries", font=("Arial", 14))
+    title.grid(row=0, column=0, pady=50)
+
+    info_text = tk.Text(list_window)
+    info_text.grid(row=1, column=0)
+
+    logging.info("list_libs_window: Filling text with info...")
+    for info_tuple in libs_info:
+        info_text.insert(
+            tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
+        )
+
+    logging.debug("list_libs_window: Configuring grid...")
+    list_window.columnconfigure(0, weight=1)
+    list_window.rowconfigure(1, weight=1)
