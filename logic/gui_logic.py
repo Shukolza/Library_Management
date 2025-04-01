@@ -46,8 +46,12 @@ class AdminMainWindow(tk.Tk):
         )
         libs_list_button.grid(column=1, row=1, pady=10, padx=10)
 
-        lib_delete_button = ttk.Button(self, text="Delete library")
-        lib_delete_button.grid(row=1, column=2, sticky='w')
+        lib_delete_button = ttk.Button(
+            self,
+            text="Delete library",
+            command=lambda: init_delete_lib_window(self._libraries_db, self),
+        )
+        lib_delete_button.grid(row=1, column=2, sticky="w")
 
         update_button = ttk.Button(self, text="Update DB", command=self.update_db)
         update_button.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
@@ -342,3 +346,57 @@ def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
     logging.debug("list_libs_window: Configuring grid...")
     list_window.columnconfigure(0, weight=1)
     list_window.rowconfigure(1, weight=1)
+
+
+def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
+    """Create GUI window to admin choose library to delete"""
+    logging.info("init_delete_lib_window: Called, getting libs info...")
+    libs_info = db.get_readable_libs_info()
+    logging.debug(f"init_delete_lib_window: libs_info = {libs_info}")
+    if len(libs_info) < 1:
+        logging.info("init_delete_lib_window: No libraries found.")
+        messagebox.showinfo("No libs found", "No libraries to delete!")  # type: ignore
+        return
+    logging.debug("init_delete_lib_window: Creating toplevel...")
+    delete_window = tk.Toplevel(root)
+    delete_window.title("Delete library")
+    delete_window.geometry("600x800")
+    logging.info("init_delete_lib_window: Creating widgets...")
+    title = ttk.Label(delete_window, text="Libraries", font=("Arial", 14))
+    title.grid(row=0, column=0, pady=50)
+
+    v_scrollbar = tk.Scrollbar(delete_window, orient=tk.VERTICAL)
+    v_scrollbar.grid(column=1, row=1, sticky='ns')
+
+    info_text = tk.Text(delete_window, yscrollcommand=v_scrollbar.set)
+    info_text.grid(row=1, column=0, sticky="nsew")
+
+    logging.info("init_delete_lib_window: Filling text with info...")
+    for info_tuple in libs_info:
+        info_text.insert(
+            tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
+        )
+
+    v_scrollbar.config(command=info_text.yview) # type: ignore
+
+    libraries_to_choose = [
+        f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}"
+        for info_tuple in libs_info
+    ]
+
+    selected_library = tk.StringVar(delete_window)
+
+    library_to_delete_combobox = ttk.Combobox(
+        delete_window, textvariable=selected_library, values=libraries_to_choose
+    )
+    library_to_delete_combobox["state"] = "readonly"
+    library_to_delete_combobox.grid(row=2, column=0)
+
+    delete_button = ttk.Button(delete_window, text="Delete")
+    delete_button.grid(row=3, column=0, pady=50)
+
+    logging.debug("init_delete_lib_window: Configuring grid...")
+    delete_window.columnconfigure(0, weight=1)
+    delete_window.rowconfigure(1, weight=1)
+    delete_window.rowconfigure(2, weight=1)
+    delete_window.rowconfigure(3, weight=1)
