@@ -105,9 +105,8 @@ class LibraryDatabase:
 
         for lib in self._libs_data:
             libs_info.append((lib["name"], lib["city"], lib["address"]))
-        
-        return libs_info
 
+        return libs_info
 
     def update_admin_password(self, new_password: str) -> None:
         """Hash and update the administrator password."""
