@@ -100,6 +100,7 @@ class LibraryDatabase:
         Returns:
             list of tuples (name, city, address)
         """
+        logging.debug("AdminMainWindow: called get_readable_libs_info")
         libs_info: list[tuple[str, str, str]] = []
 
         for lib in self._libs_data:

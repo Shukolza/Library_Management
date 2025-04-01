@@ -302,3 +302,32 @@ def ask_for_password(db: LibraryDatabase) -> bool:
     logging.debug(f"ask_for_password: returning {password_ok}")
 
     return password_ok
+
+def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
+    """Create a window to list all libraries in the database."""
+    logging.info("list_libs_window: Called, getting libs info...")
+    libs_info = db.get_readable_libs_info()
+    logging.debug(f"list_libs_window: libs_info: {libs_info}")
+    if len(libs_info) < 1:
+        logging.info("list_libs_window: No libraries found.")
+        messagebox.showinfo("No libs found", "No libraries to show!") # type: ignore
+        return
+    logging.debug("list_libs_window: Creating toplevel...")
+    list_window = tk.Toplevel(root)
+    list_window.title("Library List")
+    list_window.geometry("400x600")
+    logging.info("list_libs_window: Creating widgets...")
+
+    title = ttk.Label(list_window, text="Libraries")
+    title.grid(row=0, column=0)
+
+    info_text = tk.Text(list_window)
+    info_text.grid(row=1, column=0)
+
+    logging.info("list_libs_window: Filling text with info...")
+    for info_tuple in libs_info:
+        info_text.insert(tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n")
+
+    logging.debug("list_libs_window: Configuring grid...")
+    list_window.columnconfigure(0, weight=1)
+    list_window.rowconfigure(1, weight=1)
