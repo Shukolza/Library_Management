@@ -334,8 +334,11 @@ def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
     title = ttk.Label(list_window, text="Libraries", font=("Arial", 14))
     title.grid(row=0, column=0, pady=50)
 
-    info_text = tk.Text(list_window)
-    info_text.grid(row=1, column=0)
+    v_scrollbar = tk.Scrollbar(list_window, orient=tk.VERTICAL)
+    v_scrollbar.grid(column=1, row=1, sticky="ns")
+
+    info_text = tk.Text(list_window, yscrollcommand=v_scrollbar.set)
+    info_text.grid(row=1, column=0, sticky='nsew')
 
     logging.info("list_libs_window: Filling text with info...")
     for info_tuple in libs_info:
@@ -343,9 +346,14 @@ def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
             tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
         )
 
+    v_scrollbar.config(command=info_text.yview)  # type: ignore
+
     logging.debug("list_libs_window: Configuring grid...")
     list_window.columnconfigure(0, weight=1)
     list_window.rowconfigure(1, weight=1)
+
+    logging.debug("list_libs_window: centralizing...")
+    center_window(list_window, root)
 
 
 def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
@@ -366,7 +374,7 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
     title.grid(row=0, column=0, pady=50)
 
     v_scrollbar = tk.Scrollbar(delete_window, orient=tk.VERTICAL)
-    v_scrollbar.grid(column=1, row=1, sticky='ns')
+    v_scrollbar.grid(column=1, row=1, sticky="ns")
 
     info_text = tk.Text(delete_window, yscrollcommand=v_scrollbar.set)
     info_text.grid(row=1, column=0, sticky="nsew")
@@ -377,7 +385,7 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
             tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
         )
 
-    v_scrollbar.config(command=info_text.yview) # type: ignore
+    v_scrollbar.config(command=info_text.yview)  # type: ignore
 
     libraries_to_choose = [
         f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}"
@@ -392,7 +400,20 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
     library_to_delete_combobox["state"] = "readonly"
     library_to_delete_combobox.grid(row=2, column=0)
 
-    delete_button = ttk.Button(delete_window, text="Delete")
+    def on_delete():
+        try:
+            db.delete_library(selected_library.get(), DB_PATH)
+        except ValueError:
+            logging.warning("init_delete_lib_window: no lib selected when deleting")
+            messagebox.showerror("Error", "You must choose library to delete") # type: ignore
+            return
+        except Exception:
+            logging.exception(f"init_delete_lib_window: CRITICAL UNEXPECTED EXCEPTION")
+            return
+        messagebox.showinfo("Success!", f"Successfully deleted {selected_library.get()}") # type: ignore
+        delete_window.destroy()
+
+    delete_button = ttk.Button(delete_window, text="Delete", command=on_delete)
     delete_button.grid(row=3, column=0, pady=50)
 
     logging.debug("init_delete_lib_window: Configuring grid...")
@@ -400,3 +421,6 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
     delete_window.rowconfigure(1, weight=1)
     delete_window.rowconfigure(2, weight=1)
     delete_window.rowconfigure(3, weight=1)
+
+    logging.debug("init_delete_lib_window: centralizing...")
+    center_window(delete_window, root)
