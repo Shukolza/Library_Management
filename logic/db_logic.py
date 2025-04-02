@@ -139,6 +139,17 @@ class LibraryDatabase:
         )
         return new_key == stored_key
 
+    def delete_library(self, library_readable: str, db_path: Path) -> None:
+        if not library_readable:
+            logging.warning("Empty library name while deleting. Raising VE...")
+            raise ValueError("No library provided")
+        lib_name = library_readable[: library_readable.index("-")].rstrip()
+        for lib in self._libs_data:
+            if lib["name"] == lib_name:
+                self._libs_data.remove(lib)
+                self.save_data(db_path)
+                break
+
 
 def resource_path(relative_path: str) -> Path:
     """Get the correct file path for both development and compiled EXE."""
