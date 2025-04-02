@@ -112,7 +112,7 @@ class LibraryDatabase:
                 raise ValueError(
                     f"Library with name '{name}' already exists in city {lib.city}, on {lib.address}"
                 )
-            if address == lib.address and lib.city:
+            if address == lib.address and city == lib.city:
                 raise ValueError(
                     f"Library with address '{address}' already exists in city {lib.city}, with name {lib.name}"
                 )
