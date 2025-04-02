@@ -9,31 +9,16 @@ from tkinter import messagebox
 from logic.gui_logic import ask_for_password, AdminMainWindow
 from logic.db_logic import (
     LibraryDatabase,
-    resource_path,
     DatabaseLoadError,
     InvalidDatabaseStructureError,
+    resource_path
 )
 from config import DB_PATH
+from logic.gui_utils import setup_logging
 
 
 if __name__ == "__main__":
-    # Logging setup
-    log_file = resource_path("./log.txt")
-    log_level = logging.DEBUG
-    log_format = "%(asctime)s - %(levelname)s - %(module)s - %(message)s"
-
-    logging.basicConfig(
-        filename=log_file, level=log_level, format=log_format, filemode="w"
-    )
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
-    console_formatter = logging.Formatter("%(levelname)s: %(message)s")
-    console_handler.setFormatter(console_formatter)
-    logging.getLogger().addHandler(console_handler)
-
-    logging.info("Started.")
-
+    setup_logging(resource_path("./admin_log.txt"))
     libraries_db = LibraryDatabase()
     try:
         libraries_db.load_data(DB_PATH)
