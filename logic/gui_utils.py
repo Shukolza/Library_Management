@@ -71,5 +71,3 @@ def setup_logging(log_file: Path) -> None:
     console_formatter = logging.Formatter("%(levelname)s: %(message)s")
     console_handler.setFormatter(console_formatter)
     logging.getLogger().addHandler(console_handler)
-
-    logging.info("Started.")

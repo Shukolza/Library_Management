@@ -19,6 +19,7 @@ from logic.gui_utils import setup_logging
 
 if __name__ == "__main__":
     setup_logging(resource_path("./admin_log.txt"))
+    logging.info("Started.")
     libraries_db = LibraryDatabase()
     try:
         libraries_db.load_data(DB_PATH)
