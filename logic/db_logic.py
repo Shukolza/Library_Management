@@ -6,8 +6,10 @@ import json
 import hashlib
 import logging
 
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from tkinter import messagebox
+
 from logic.loading_window import LoadingWindow
 
 _HASH_ALGORITHM = "sha256"
@@ -20,11 +22,18 @@ _LIB_CITY_DATA_KEY = "city"
 _LIB_ADDRESS_DATA_KEY = "address"
 
 
+@dataclass
+class Library:
+    name: str
+    city: str
+    address: str
+
+
 class LibraryDatabase:
     """Class for database with libraries data"""
 
     def __init__(self):
-        self._libs_data: list[dict[str, str]] = []
+        self._libs_data: list[Library] = []
         self._admin_password: str = ""
         self.password_set: bool = bool(self._admin_password)
 
@@ -37,7 +46,14 @@ class LibraryDatabase:
             # Load data from file
             with open(file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
-                self._libs_data = data[_LIBRARIES_DATA_KEY]
+                for lib in data[_LIBRARIES_DATA_KEY]:
+                    self._libs_data.append(
+                        Library(
+                            lib[_LIB_NAME_DATA_KEY],
+                            lib[_LIB_CITY_DATA_KEY],
+                            lib[_LIB_ADDRESS_DATA_KEY],
+                        )
+                    )
                 self._admin_password = data[_ADMIN_PASSWORD_DATA_KEY]
                 self.password_set = bool(self._admin_password)
         except FileNotFoundError:
@@ -75,7 +91,7 @@ class LibraryDatabase:
             with open(file_path, "w") as file:
                 json.dump(
                     {
-                        _LIBRARIES_DATA_KEY: self._libs_data,
+                        _LIBRARIES_DATA_KEY: [asdict(lib) for lib in self._libs_data],
                         _ADMIN_PASSWORD_DATA_KEY: self._admin_password,
                     },
                     file,
@@ -92,25 +108,16 @@ class LibraryDatabase:
             logging.warning("Not all fields filled while adding lb. Raising VE...")
             raise ValueError("All fields (name, city, address) must be filled.")
         for lib in self._libs_data:
-            if lib[_LIB_NAME_DATA_KEY] == name:
+            if lib.name == name:
                 raise ValueError(
-                    f"Library with name '{name}' already exists in city {lib[_LIB_CITY_DATA_KEY]}, on {lib[_LIB_ADDRESS_DATA_KEY]}"
+                    f"Library with name '{name}' already exists in city {lib.city}, on {lib.address}"
                 )
-            if (
-                address == lib[_LIB_ADDRESS_DATA_KEY]
-                and city == lib[_LIB_CITY_DATA_KEY]
-            ):
+            if address == lib.address and lib.city:
                 raise ValueError(
-                    f"Library with address '{address}' already exists in city {lib[_LIB_CITY_DATA_KEY]}, with name {lib[_LIB_NAME_DATA_KEY]}"
+                    f"Library with address '{address}' already exists in city {lib.city}, with name {lib.name}"
                 )
 
-        self._libs_data.append(
-            {
-                _LIB_NAME_DATA_KEY: name,
-                _LIB_CITY_DATA_KEY: city,
-                _LIB_ADDRESS_DATA_KEY: address,
-            }
-        )
+        self._libs_data.append(Library(name, city, address))
 
     def get_readable_libs_info(self) -> list[tuple[str, str, str]]:
         """Get readable info of all libraries
@@ -123,9 +130,9 @@ class LibraryDatabase:
         for lib in self._libs_data:
             libs_info.append(
                 (
-                    lib[_LIB_NAME_DATA_KEY],
-                    lib[_LIB_CITY_DATA_KEY],
-                    lib[_LIB_ADDRESS_DATA_KEY],
+                    lib.name,
+                    lib.city,
+                    lib.address,
                 )
             )
 
@@ -173,7 +180,7 @@ class LibraryDatabase:
             raise ValueError("No library provided")
         lib_name = library_readable[: library_readable.index("-")].rstrip()
         for lib in self._libs_data:
-            if lib[_LIB_NAME_DATA_KEY] == lib_name:
+            if lib.name == lib_name:
                 self._libs_data.remove(lib)
                 self.save_data(db_path)
                 break
