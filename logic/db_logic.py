@@ -13,15 +13,23 @@ from logic.loading_window import LoadingWindow
 _HASH_ALGORITHM = "sha256"
 _HASH_ITERATIONS = 600_000
 
+_LIBRARIES_DATA_KEY = "libraries_data"
+_ADMIN_PASSWORD_DATA_KEY = "administrator_password"
+_LIB_NAME_DATA_KEY = "name"
+_LIB_CITY_DATA_KEY = "city"
+_LIB_ADDRESS_DATA_KEY = "address"
+
 
 class LibraryDatabase:
+    """Class for database with libraries data"""
+
     def __init__(self):
         self._libs_data: list[dict[str, str]] = []
         self._admin_password: str = ""
         self.password_set: bool = bool(self._admin_password)
 
     def load_data(self, file_path: Path) -> None:
-        """Load data from a JSON file temporarily without a loading window."""
+        """Load data from a JSON file with a loading window."""
         loading_window = LoadingWindow()
         logging.info(f"Loading DB from {file_path}")
 
@@ -29,8 +37,8 @@ class LibraryDatabase:
             # Load data from file
             with open(file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
-                self._libs_data = data["libraries_data"]
-                self._admin_password = data["administrator_password"]
+                self._libs_data = data[_LIBRARIES_DATA_KEY]
+                self._admin_password = data[_ADMIN_PASSWORD_DATA_KEY]
                 self.password_set = bool(self._admin_password)
         except FileNotFoundError:
             logging.error("DB file not found while loading. Interputting...")
@@ -67,8 +75,8 @@ class LibraryDatabase:
             with open(file_path, "w") as file:
                 json.dump(
                     {
-                        "libraries_data": self._libs_data,
-                        "administrator_password": self._admin_password,
+                        _LIBRARIES_DATA_KEY: self._libs_data,
+                        _ADMIN_PASSWORD_DATA_KEY: self._admin_password,
                     },
                     file,
                     indent=4,
@@ -84,16 +92,25 @@ class LibraryDatabase:
             logging.warning("Not all fields filled while adding lb. Raising VE...")
             raise ValueError("All fields (name, city, address) must be filled.")
         for lib in self._libs_data:
-            if lib["name"] == name:
+            if lib[_LIB_NAME_DATA_KEY] == name:
                 raise ValueError(
-                    f"Library with name '{name}' already exists in city {lib['city']}, on {lib['address']}"
+                    f"Library with name '{name}' already exists in city {lib[_LIB_CITY_DATA_KEY]}, on {lib[_LIB_ADDRESS_DATA_KEY]}"
                 )
-            if address == lib["address"] and city == lib["city"]:
+            if (
+                address == lib[_LIB_ADDRESS_DATA_KEY]
+                and city == lib[_LIB_CITY_DATA_KEY]
+            ):
                 raise ValueError(
-                    f"Library with address '{address}' already exists in city {lib['city']}, with name {lib['name']}"
+                    f"Library with address '{address}' already exists in city {lib[_LIB_CITY_DATA_KEY]}, with name {lib[_LIB_NAME_DATA_KEY]}"
                 )
 
-        self._libs_data.append({"name": name, "city": city, "address": address})
+        self._libs_data.append(
+            {
+                _LIB_NAME_DATA_KEY: name,
+                _LIB_CITY_DATA_KEY: city,
+                _LIB_ADDRESS_DATA_KEY: address,
+            }
+        )
 
     def get_readable_libs_info(self) -> list[tuple[str, str, str]]:
         """Get readable info of all libraries
@@ -104,7 +121,13 @@ class LibraryDatabase:
         libs_info: list[tuple[str, str, str]] = []
 
         for lib in self._libs_data:
-            libs_info.append((lib["name"], lib["city"], lib["address"]))
+            libs_info.append(
+                (
+                    lib[_LIB_NAME_DATA_KEY],
+                    lib[_LIB_CITY_DATA_KEY],
+                    lib[_LIB_ADDRESS_DATA_KEY],
+                )
+            )
 
         return libs_info
 
@@ -140,12 +163,17 @@ class LibraryDatabase:
         return new_key == stored_key
 
     def delete_library(self, library_readable: str, db_path: Path) -> None:
+        """Delete library from database by readable name.
+
+        Parameters:
+        library_readable (str): Library readable in format {name} - {city}, {address}.
+        db_path (Path): Path to save DB in."""
         if not library_readable:
             logging.warning("Empty library name while deleting. Raising VE...")
             raise ValueError("No library provided")
         lib_name = library_readable[: library_readable.index("-")].rstrip()
         for lib in self._libs_data:
-            if lib["name"] == lib_name:
+            if lib[_LIB_NAME_DATA_KEY] == lib_name:
                 self._libs_data.remove(lib)
                 self.save_data(db_path)
                 break

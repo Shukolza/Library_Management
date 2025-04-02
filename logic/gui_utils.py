@@ -10,9 +10,11 @@ def center_window(
     width: int | None = None,
     height: int | None = None,
 ) -> None:
-    """Centers a Tkinter window relative to its parent or the screen."""
+    """Centers a Tk or Toplevel relative to its parent or the screen."""
     logging.info(f"Centralizing {window_to_center}...")
-    logging.debug(f"Centralizing with params:\n{window_to_center}\n{parent}\n{width}\n{height}")
+    logging.debug(
+        f"Centralizing with params:\n{window_to_center}\n{parent}\n{width}\n{height}"
+    )
     window_to_center.update_idletasks()
 
     win_width = width if width else window_to_center.winfo_reqwidth()
@@ -24,7 +26,7 @@ def center_window(
         parent_y = parent.winfo_y()
         parent_width = parent.winfo_width()
         parent_height = parent.winfo_height()
-        ref_x = parent_x 
+        ref_x = parent_x
         ref_y = parent_y
         ref_width = parent_width
         ref_height = parent_height
