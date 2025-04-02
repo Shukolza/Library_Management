@@ -6,12 +6,14 @@ import webbrowser as web
 from tkinter import ttk
 from tkinter import messagebox
 
-from logic.db_logic import LibraryDatabase
+from logic.db_logic import LibraryDatabase, DatabaseSaveError, DatabaseException
 from logic.gui_utils import center_window
 from config import DB_PATH, ICON_PATH
 
 
 class AdminMainWindow(tk.Tk):
+    """Class for Admin window."""
+
     def __init__(self, libraries_db: LibraryDatabase) -> None:
         logging.debug("Initializing AdminMainWindow")
         super().__init__()
@@ -22,6 +24,7 @@ class AdminMainWindow(tk.Tk):
         center_window(self, width=800, height=600)
 
     def create_widgets(self):
+        """Create all widgets of Admin window and set icon"""
         logging.debug("Calling AdminMainWindow create_widgets()")
         set_icon(self)
         title = ttk.Label(
@@ -71,13 +74,14 @@ class AdminMainWindow(tk.Tk):
         self.rowconfigure(2, weight=1)
 
     def update_db(self) -> None:
+        """Reload DB from file (path stored in ./config.py)"""
         logging.debug("Updating DB...")
         self._libraries_db.load_data(DB_PATH)
         messagebox.showinfo("Success", "Database updated successfully")  # type: ignore
 
 
 def set_icon(window: tk.Tk) -> None:
-    """Set window icon"""
+    """Set window icon from path provided in ./config.py"""
     try:
         logging.info(f"Attempt setting icon from {ICON_PATH}")
         icon = tk.PhotoImage(file=ICON_PATH)
@@ -141,11 +145,18 @@ def set_password(
     password_window: tk.Toplevel,
     password_entry: ttk.Entry,
 ) -> bool:
-    """Set user password"""
+    """Set admin password"""
     password = password_entry.get()
     try:
         libraries_db.update_admin_password(password)
-        libraries_db.save_data(DB_PATH)
+        try:
+            libraries_db.save_data(DB_PATH)
+        except DatabaseSaveError as e:
+            logging.exception("DB Save error")
+            messagebox.showerror(  # type: ignore
+                "Error",
+                f"Failed to save password!\n{e}\n Contact system administrator.\n You can continue working, but it is not recommended",
+            )
         password_window.destroy()
         return True
     except ValueError:
@@ -186,7 +197,14 @@ def create_library(
     """Create new library and add info to DB"""
     try:
         libraries_db.add_library(name, city, address)
-        libraries_db.save_data(DB_PATH)
+        try:
+            libraries_db.save_data(DB_PATH)
+        except DatabaseSaveError as e:
+            logging.exception("DB Save error")
+            messagebox.showerror(  # type: ignore
+                "Error",
+                f"Failed to save library! It will be lost when you close app!\n{e}\n Contact system administrator.\n You can continue working, but it is not recommended",
+            )
         window.destroy()
     except ValueError as error:
         show_custom_message(window, "Error", str(error), "error")
@@ -338,7 +356,7 @@ def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
     v_scrollbar.grid(column=1, row=1, sticky="ns")
 
     info_text = tk.Text(list_window, yscrollcommand=v_scrollbar.set)
-    info_text.grid(row=1, column=0, sticky='nsew')
+    info_text.grid(row=1, column=0, sticky="nsew")
 
     logging.info("list_libs_window: Filling text with info...")
     for info_tuple in libs_info:
@@ -401,17 +419,22 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
     library_to_delete_combobox.grid(row=2, column=0)
 
     def on_delete():
+        """Function for delete button. Gets library name and calls db.delete_library"""
+        selected_index = library_to_delete_combobox.current()
+        if selected_index < 0:
+            logging.warning("init_delete_lib_window: on_delete: Library not selected")
+            messagebox.showerror("Error", "Please select a library to delete!")  # type: ignore
+            return
+        selected_name = libs_info[selected_index][0]
         try:
-            db.delete_library(selected_library.get(), DB_PATH)
-        except ValueError:
-            logging.warning("init_delete_lib_window: no lib selected when deleting")
-            messagebox.showerror("Error", "You must choose library to delete") # type: ignore
-            return
-        except Exception:
-            logging.exception(f"init_delete_lib_window: CRITICAL UNEXPECTED EXCEPTION")
-            return
-        messagebox.showinfo("Success!", f"Successfully deleted {selected_library.get()}") # type: ignore
-        delete_window.destroy()
+            db.delete_library(selected_name)
+            messagebox.showinfo("Success", f"Successfully deleted library {libraries_to_choose[selected_index]}")  # type: ignore
+            delete_window.destroy()
+        except DatabaseException:
+            logging.exception(
+                f"init_delete_lib_window: on_delete: Could not find library {selected_name}"
+            )
+            messagebox.showerror("Error", f"Could not delete library '{selected_name}'. It might have been already deleted. Please use 'Update DB' button")  # type: ignore
 
     delete_button = ttk.Button(delete_window, text="Delete", command=on_delete)
     delete_button.grid(row=3, column=0, pady=50)

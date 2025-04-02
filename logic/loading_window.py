@@ -5,6 +5,8 @@ from logic.gui_utils import center_window
 
 
 class LoadingWindow:
+    """Class for loading widow."""
+
     def __init__(self) -> None:
         self._temp_root = tk.Tk()
         self._temp_root.geometry("1x1+-100+-100")

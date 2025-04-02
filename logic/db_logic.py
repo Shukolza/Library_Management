@@ -1,27 +1,60 @@
 """All database logic"""
 
 import os
-import sys
 import json
 import hashlib
 import logging
 
+from dataclasses import dataclass, asdict
 from pathlib import Path
-from tkinter import messagebox
+
 from logic.loading_window import LoadingWindow
 
 _HASH_ALGORITHM = "sha256"
 _HASH_ITERATIONS = 600_000
 
+_LIBRARIES_DATA_KEY = "libraries_data"
+_ADMIN_PASSWORD_DATA_KEY = "administrator_password"
+_LIB_NAME_DATA_KEY = "name"
+_LIB_CITY_DATA_KEY = "city"
+_LIB_ADDRESS_DATA_KEY = "address"
+
+
+class DatabaseException(Exception):
+    """Base exception for DB operations"""
+
+
+class DatabaseLoadError(DatabaseException):
+    """Exception for DB load error"""
+
+
+class DatabaseSaveError(DatabaseException):
+    """Exception for DB save error"""
+
+
+class InvalidDatabaseStructureError(DatabaseException):
+    """Exception for DB structure error"""
+
+
+@dataclass
+class Library:
+    """Library dataclass"""
+
+    name: str
+    city: str
+    address: str
+
 
 class LibraryDatabase:
+    """Class for database with libraries data"""
+
     def __init__(self):
-        self._libs_data: list[dict[str, str]] = []
+        self._libs_data: list[Library] = []
         self._admin_password: str = ""
         self.password_set: bool = bool(self._admin_password)
 
     def load_data(self, file_path: Path) -> None:
-        """Load data from a JSON file temporarily without a loading window."""
+        """Load data from a JSON file with a loading window."""
         loading_window = LoadingWindow()
         logging.info(f"Loading DB from {file_path}")
 
@@ -29,34 +62,36 @@ class LibraryDatabase:
             # Load data from file
             with open(file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
-                self._libs_data = data["libraries_data"]
-                self._admin_password = data["administrator_password"]
+                for lib in data[_LIBRARIES_DATA_KEY]:
+                    self._libs_data.append(
+                        Library(
+                            lib[_LIB_NAME_DATA_KEY],
+                            lib[_LIB_CITY_DATA_KEY],
+                            lib[_LIB_ADDRESS_DATA_KEY],
+                        )
+                    )
+                self._admin_password = data[_ADMIN_PASSWORD_DATA_KEY]
                 self.password_set = bool(self._admin_password)
-        except FileNotFoundError:
-            logging.error("DB file not found while loading. Interputting...")
+        except FileNotFoundError as e:
+            logging.exception("DB file not found while loading. Raising DBLoadError...")
             loading_window.close()
-            messagebox.showerror("Error", "The specified database file was not found.\n Contact system administrator")  # type: ignore
-            sys.exit(1)
-        except json.JSONDecodeError:
-            logging.error("JSON decoding failed. Interputting...")
+            raise DatabaseLoadError("DB file not found") from e
+        except json.JSONDecodeError as e:
+            logging.exception("JSON decoding failed. Raising DBLoadError...")
             loading_window.close()
-            messagebox.showerror(  # type:ignore
-                "Error",
-                "Failed to decode JSON from the database file.\n Contact system administrator",
+            raise DatabaseLoadError("JSON decoding failed") from e
+        except KeyError as e:
+            logging.exception(
+                "Invalid DB structure. Raising InvalidDatabaseStructureError..."
             )
-            sys.exit(1)
-        except KeyError:
-            logging.error("Invalid DB structure. Interputting...")
             loading_window.close()
-            messagebox.showerror(  # type:ignore
-                "Error", "Invalid database structure!\n Contact system administrator"
-            )
-            sys.exit(1)
+            raise InvalidDatabaseStructureError("Invalid DB structure error") from e
         except Exception as e:
-            logging.exception("UNEXPECTED ERROR WHILE LOADING DB, INTERPUTTING: ")
+            logging.exception(
+                "UNEXPECTED ERROR WHILE LOADING DB, RAISING DBLoadError..."
+            )
             loading_window.close()
-            messagebox.showerror("Error", f"An unexpected error occurred: {e}\n Contact system administrator")  # type: ignore
-            sys.exit(1)
+            raise DatabaseLoadError(f"Unexpected error while loading DB\n{e}") from e
         finally:
             loading_window.close()
 
@@ -67,16 +102,15 @@ class LibraryDatabase:
             with open(file_path, "w") as file:
                 json.dump(
                     {
-                        "libraries_data": self._libs_data,
-                        "administrator_password": self._admin_password,
+                        _LIBRARIES_DATA_KEY: [asdict(lib) for lib in self._libs_data],
+                        _ADMIN_PASSWORD_DATA_KEY: self._admin_password,
                     },
                     file,
                     indent=4,
                 )
         except OSError as e:
             logging.exception(f"Failed to save DB to {file_path}:")
-            messagebox.showerror("Error", f"Failed to save database file:\n{e}\n Contact system administrator")  # type: ignore
-            sys.exit(1)
+            raise DatabaseSaveError(f"Failed to save DB to {file_path}") from e
 
     def add_library(self, name: str, city: str, address: str) -> None:
         """Add a new library to the database."""
@@ -84,16 +118,16 @@ class LibraryDatabase:
             logging.warning("Not all fields filled while adding lb. Raising VE...")
             raise ValueError("All fields (name, city, address) must be filled.")
         for lib in self._libs_data:
-            if lib["name"] == name:
+            if lib.name == name:
                 raise ValueError(
-                    f"Library with name '{name}' already exists in city {lib['city']}, on {lib['address']}"
+                    f"Library with name '{name}' already exists in city {lib.city}, on {lib.address}"
                 )
-            if address == lib["address"] and city == lib["city"]:
+            if address == lib.address and city == lib.city:
                 raise ValueError(
-                    f"Library with address '{address}' already exists in city {lib['city']}, with name {lib['name']}"
+                    f"Library with address '{address}' already exists in city {lib.city}, with name {lib.name}"
                 )
 
-        self._libs_data.append({"name": name, "city": city, "address": address})
+        self._libs_data.append(Library(name, city, address))
 
     def get_readable_libs_info(self) -> list[tuple[str, str, str]]:
         """Get readable info of all libraries
@@ -104,7 +138,13 @@ class LibraryDatabase:
         libs_info: list[tuple[str, str, str]] = []
 
         for lib in self._libs_data:
-            libs_info.append((lib["name"], lib["city"], lib["address"]))
+            libs_info.append(
+                (
+                    lib.name,
+                    lib.city,
+                    lib.address,
+                )
+            )
 
         return libs_info
 
@@ -139,26 +179,13 @@ class LibraryDatabase:
         )
         return new_key == stored_key
 
-    def delete_library(self, library_readable: str, db_path: Path) -> None:
-        if not library_readable:
-            logging.warning("Empty library name while deleting. Raising VE...")
-            raise ValueError("No library provided")
-        lib_name = library_readable[: library_readable.index("-")].rstrip()
+    def delete_library(self, library_name: str) -> None:
+        """Delete library from database by strict name.
+
+        Parameters:
+        library_name (str): Library name."""
         for lib in self._libs_data:
-            if lib["name"] == lib_name:
+            if lib.name == library_name:
                 self._libs_data.remove(lib)
-                self.save_data(db_path)
-                break
-
-
-def resource_path(relative_path: str) -> Path:
-    """Get the correct file path for both development and compiled EXE."""
-    try:
-        # If compiled (PyInstaller)
-        base_path: Path = Path(sys._MEIPASS)  # type: ignore
-    except AttributeError:
-        # If launched via Python
-        base_path: Path = Path(__file__).parent.parent
-
-    full_path = base_path / relative_path
-    return full_path.resolve()
+                return
+        raise DatabaseException("Library not found when deleting!")
