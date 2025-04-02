@@ -178,21 +178,16 @@ class LibraryDatabase:
         )
         return new_key == stored_key
 
-    def delete_library(self, library_readable: str, db_path: Path) -> None:
-        """Delete library from database by readable name.
+    def delete_library(self, library_name: str) -> None:
+        """Delete library from database by strict name.
 
         Parameters:
-        library_readable (str): Library readable in format {name} - {city}, {address}.
-        db_path (Path): Path to save DB in."""
-        if not library_readable:
-            logging.warning("Empty library name while deleting. Raising VE...")
-            raise ValueError("No library provided")
-        lib_name = library_readable[: library_readable.index("-")].rstrip()
+        library_name (str): Library name."""
         for lib in self._libs_data:
-            if lib.name == lib_name:
+            if lib.name == library_name:
                 self._libs_data.remove(lib)
-                self.save_data(db_path)
-                break
+                return
+        raise DatabaseException("Library not found when deleting!")
 
 
 def resource_path(relative_path: str) -> Path:

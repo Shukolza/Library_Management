@@ -6,7 +6,7 @@ import webbrowser as web
 from tkinter import ttk
 from tkinter import messagebox
 
-from logic.db_logic import LibraryDatabase, DatabaseSaveError
+from logic.db_logic import LibraryDatabase, DatabaseSaveError, DatabaseException
 from logic.gui_utils import center_window
 from config import DB_PATH, ICON_PATH
 
@@ -419,28 +419,22 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
     library_to_delete_combobox.grid(row=2, column=0)
 
     def on_delete():
-        """Function for 'delete' button"""
+        nonlocal libs_info, libraries_to_choose
+        selected_index = library_to_delete_combobox.current()
+        if selected_index < 0:
+            logging.warning("init_delete_lib_window: on_delete: Library not selected")
+            messagebox.showerror("Error", "Please select a library to delete!")  # type: ignore
+            return
+        selected_name = libs_info[selected_index][0]
         try:
-            db.delete_library(selected_library.get(), DB_PATH)
-        except ValueError:
-            logging.warning("init_delete_lib_window: no lib selected when deleting")
-            messagebox.showerror("Error", "You must choose library to delete")  # type: ignore
-            return
-        except DatabaseSaveError as e:
-            logging.exception("DB Save error")
-            messagebox.showerror(  # type: ignore
-                "Error",
-                f"Failed to delete library! It will appear again when you close app.\n{e}\n Contact system administrator.\n You can continue working, but it is not recommended",
+            db.delete_library(selected_name)
+            messagebox.showinfo("Success", f"Successfully deleted library {libraries_to_choose[selected_index]}")  # type: ignore
+            delete_window.destroy()
+        except DatabaseException:
+            logging.exception(
+                f"init_delete_lib_window: on_delete: Could not find library {selected_name}"
             )
-        except Exception as e:
-            logging.exception(f"init_delete_lib_window: CRITICAL UNEXPECTED EXCEPTION")
-            messagebox.showerror(  # type: ignore
-                "Error",
-                f"Unexpected error occurred! Application will be interputted.\n{e}\nContact system administrator",
-            )
-            return
-        messagebox.showinfo("Success!", f"Successfully deleted {selected_library.get()}")  # type: ignore
-        delete_window.destroy()
+            messagebox.showerror("Error", f"Could not delete library '{selected_name}'. It might have been already deleted. Please use 'Update DB' button")  # type: ignore
 
     delete_button = ttk.Button(delete_window, text="Delete", command=on_delete)
     delete_button.grid(row=3, column=0, pady=50)
