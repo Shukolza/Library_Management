@@ -26,9 +26,11 @@ This is a simple GUI system for a library management system. It includes several
 
 ### 4. [Configuration](#configuration)
 
-### 5. [Contribution](#contribution)
+### 5. [Project roadmap](#roadmap)
 
-### 6. [License](#license)
+### 6. [Contribution](#contribution)
+
+### 7. [License](#license)
 
 ---
 
@@ -114,6 +116,12 @@ The default contents:
     "administrator_password": ""
 }
 ```
+
+---
+
+## Roadmap
+
+See the [ROADMAP](ROADMAP.md) file
 
 ---
 
