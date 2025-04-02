@@ -8,7 +8,6 @@ import logging
 
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from tkinter import messagebox
 
 from logic.loading_window import LoadingWindow
 
@@ -20,6 +19,22 @@ _ADMIN_PASSWORD_DATA_KEY = "administrator_password"
 _LIB_NAME_DATA_KEY = "name"
 _LIB_CITY_DATA_KEY = "city"
 _LIB_ADDRESS_DATA_KEY = "address"
+
+
+class DatabaseException(Exception):
+    """Base exception for DB operations"""
+
+
+class DatabaseLoadError(DatabaseException):
+    """Exception for DB load error"""
+
+
+class DatabaseSaveError(DatabaseException):
+    """Exception for DB save error"""
+
+
+class InvalidDatabaseStructureError(DatabaseException):
+    """Exception for DB structure error"""
 
 
 @dataclass
@@ -56,31 +71,26 @@ class LibraryDatabase:
                     )
                 self._admin_password = data[_ADMIN_PASSWORD_DATA_KEY]
                 self.password_set = bool(self._admin_password)
-        except FileNotFoundError:
-            logging.error("DB file not found while loading. Interputting...")
+        except FileNotFoundError as e:
+            logging.exception("DB file not found while loading. Raising DBLoadError...")
             loading_window.close()
-            messagebox.showerror("Error", "The specified database file was not found.\n Contact system administrator")  # type: ignore
-            sys.exit(1)
-        except json.JSONDecodeError:
-            logging.error("JSON decoding failed. Interputting...")
+            raise DatabaseLoadError("DB file not found") from e
+        except json.JSONDecodeError as e:
+            logging.exception("JSON decoding failed. Raising DBLoadError...")
             loading_window.close()
-            messagebox.showerror(  # type:ignore
-                "Error",
-                "Failed to decode JSON from the database file.\n Contact system administrator",
+            raise DatabaseLoadError("JSON decoding failed") from e
+        except KeyError as e:
+            logging.exception(
+                "Invalid DB structure. Raising InvalidDatabaseStructureError..."
             )
-            sys.exit(1)
-        except KeyError:
-            logging.error("Invalid DB structure. Interputting...")
             loading_window.close()
-            messagebox.showerror(  # type:ignore
-                "Error", "Invalid database structure!\n Contact system administrator"
-            )
-            sys.exit(1)
+            raise InvalidDatabaseStructureError("Invalid DB structure error") from e
         except Exception as e:
-            logging.exception("UNEXPECTED ERROR WHILE LOADING DB, INTERPUTTING: ")
+            logging.exception(
+                "UNEXPECTED ERROR WHILE LOADING DB, RAISING DBLoadError..."
+            )
             loading_window.close()
-            messagebox.showerror("Error", f"An unexpected error occurred: {e}\n Contact system administrator")  # type: ignore
-            sys.exit(1)
+            raise DatabaseLoadError(f"Unexpected error while loading DB\n{e}") from e
         finally:
             loading_window.close()
 
@@ -99,8 +109,7 @@ class LibraryDatabase:
                 )
         except OSError as e:
             logging.exception(f"Failed to save DB to {file_path}:")
-            messagebox.showerror("Error", f"Failed to save database file:\n{e}\n Contact system administrator")  # type: ignore
-            sys.exit(1)
+            raise DatabaseSaveError(f"Failed to save DB to {file_path}") from e
 
     def add_library(self, name: str, city: str, address: str) -> None:
         """Add a new library to the database."""

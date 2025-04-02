@@ -6,7 +6,7 @@ import webbrowser as web
 from tkinter import ttk
 from tkinter import messagebox
 
-from logic.db_logic import LibraryDatabase
+from logic.db_logic import LibraryDatabase, DatabaseSaveError
 from logic.gui_utils import center_window
 from config import DB_PATH, ICON_PATH
 
@@ -149,7 +149,14 @@ def set_password(
     password = password_entry.get()
     try:
         libraries_db.update_admin_password(password)
-        libraries_db.save_data(DB_PATH)
+        try:
+            libraries_db.save_data(DB_PATH)
+        except DatabaseSaveError as e:
+            logging.exception("DB Save error")
+            messagebox.showerror(  # type: ignore
+                "Error",
+                f"Failed to save password!\n{e}\n Contact system administrator.\n You can continue working, but it is not recommended",
+            )
         password_window.destroy()
         return True
     except ValueError:
@@ -190,7 +197,14 @@ def create_library(
     """Create new library and add info to DB"""
     try:
         libraries_db.add_library(name, city, address)
-        libraries_db.save_data(DB_PATH)
+        try:
+            libraries_db.save_data(DB_PATH)
+        except DatabaseSaveError as e:
+            logging.exception("DB Save error")
+            messagebox.showerror(  # type: ignore
+                "Error",
+                f"Failed to save library! It will be lost when you close app!\n{e}\n Contact system administrator.\n You can continue working, but it is not recommended",
+            )
         window.destroy()
     except ValueError as error:
         show_custom_message(window, "Error", str(error), "error")
@@ -412,8 +426,18 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
             logging.warning("init_delete_lib_window: no lib selected when deleting")
             messagebox.showerror("Error", "You must choose library to delete")  # type: ignore
             return
-        except Exception:
+        except DatabaseSaveError as e:
+            logging.exception("DB Save error")
+            messagebox.showerror(  # type: ignore
+                "Error",
+                f"Failed to delete library! It will appear again when you close app.\n{e}\n Contact system administrator.\n You can continue working, but it is not recommended",
+            )
+        except Exception as e:
             logging.exception(f"init_delete_lib_window: CRITICAL UNEXPECTED EXCEPTION")
+            messagebox.showerror(  # type: ignore
+                "Error",
+                f"Unexpected error occurred! Application will be interputted.\n{e}\nContact system administrator",
+            )
             return
         messagebox.showinfo("Success!", f"Successfully deleted {selected_library.get()}")  # type: ignore
         delete_window.destroy()
