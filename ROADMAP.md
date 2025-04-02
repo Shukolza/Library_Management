@@ -13,6 +13,7 @@ Here is functions plans and steps of development.
 3. [My priorities](#my-priorities)
 4. [Immediate plans](#immediate-plans)
 5. [Future plans](#future-plans)
+6. [How can you help?](#how-can-you-help)
 
 ---
 
