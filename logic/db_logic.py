@@ -39,6 +39,8 @@ class InvalidDatabaseStructureError(DatabaseException):
 
 @dataclass
 class Library:
+    """Library dataclass"""
+
     name: str
     city: str
     address: str

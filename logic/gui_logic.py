@@ -419,7 +419,7 @@ def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
     library_to_delete_combobox.grid(row=2, column=0)
 
     def on_delete():
-        nonlocal libs_info, libraries_to_choose
+        """Function for delete button. Gets library name and calls db.delete_library"""
         selected_index = library_to_delete_combobox.current()
         if selected_index < 0:
             logging.warning("init_delete_lib_window: on_delete: Library not selected")

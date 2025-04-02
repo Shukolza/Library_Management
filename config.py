@@ -1,3 +1,5 @@
+"""Configuration file. Contains DB_PATH & ICON_PATH"""
+
 from logic.db_logic import resource_path
 from pathlib import Path
 

@@ -64,7 +64,7 @@ git clone https://github.com/Shukolza/Library_Management.git && cd Library_Manag
 
 ### Run interface you need
 
-**For administrator:**
+**For administrator:** (Partially implemented)
 
 ``` bash
 python3 administrator_gui.py
@@ -90,6 +90,8 @@ python3 client.py
 All paths for external files of application are stored in (config.py). The default content:
 
 ``` python
+"""Configuration file. Contains DB_PATH & ICON_PATH"""
+
 from logic.db_logic import resource_path
 from pathlib import Path
 
@@ -98,6 +100,7 @@ DB_PATH: Path = resource_path("./libs_data.json")
 
 # CHANGE THIS TO USE CUSTOM ICON / ИЗМЕНИТЕ ЭТО ДЛЯ СВОЕЙ ИКОНКИ
 ICON_PATH: Path = resource_path("./img/book.png")
+
 ```
 
 * **The database file**
