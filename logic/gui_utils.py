@@ -71,3 +71,16 @@ def setup_logging(log_file: Path) -> None:
     console_formatter = logging.Formatter("%(levelname)s: %(message)s")
     console_handler.setFormatter(console_formatter)
     logging.getLogger().addHandler(console_handler)
+
+
+def resource_path(relative_path: str) -> Path:
+    """Get the correct file path for both development and compiled EXE."""
+    try:
+        # If compiled (PyInstaller)
+        base_path: Path = Path(sys._MEIPASS)  # type: ignore
+    except AttributeError:
+        # If launched via Python
+        base_path: Path = Path(__file__).parent.parent
+
+    full_path = base_path / relative_path
+    return full_path.resolve()

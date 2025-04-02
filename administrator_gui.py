@@ -11,10 +11,9 @@ from logic.db_logic import (
     LibraryDatabase,
     DatabaseLoadError,
     InvalidDatabaseStructureError,
-    resource_path,
 )
 from config import DB_PATH
-from logic.gui_utils import setup_logging
+from logic.gui_utils import resource_path, setup_logging
 
 
 if __name__ == "__main__":

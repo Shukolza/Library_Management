@@ -1,7 +1,6 @@
 """All database logic"""
 
 import os
-import sys
 import json
 import hashlib
 import logging
@@ -190,16 +189,3 @@ class LibraryDatabase:
                 self._libs_data.remove(lib)
                 return
         raise DatabaseException("Library not found when deleting!")
-
-
-def resource_path(relative_path: str) -> Path:
-    """Get the correct file path for both development and compiled EXE."""
-    try:
-        # If compiled (PyInstaller)
-        base_path: Path = Path(sys._MEIPASS)  # type: ignore
-    except AttributeError:
-        # If launched via Python
-        base_path: Path = Path(__file__).parent.parent
-
-    full_path = base_path / relative_path
-    return full_path.resolve()
