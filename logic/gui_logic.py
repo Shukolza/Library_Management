@@ -33,14 +33,14 @@ class AdminMainWindow(tk.Tk):
             font=("Arial", 14),
             anchor="center",
         )
-        title.grid(row=0, column=1, columnspan=2, pady=50, sticky="w")
+        title.grid(row=0, column=0, columnspan=4, pady=50)
 
         button_create = ttk.Button(
             self,
             text="Create new library",
             command=lambda: init_create_library_window(self._libraries_db, self),
         )
-        button_create.grid(column=0, row=1, pady=10, sticky="e")
+        button_create.grid(column=0, row=1, pady=10)
 
         libs_list_button = ttk.Button(
             self,
@@ -54,21 +54,25 @@ class AdminMainWindow(tk.Tk):
             text="Delete library",
             command=lambda: init_delete_lib_window(self._libraries_db, self),
         )
-        lib_delete_button.grid(row=1, column=2, sticky="w")
+        lib_delete_button.grid(row=1, column=2)
+
+        lib_edit_button = ttk.Button(self, text="Edit library")
+        lib_edit_button.grid(row=1, column=3, sticky="w", padx=(30, 0))
 
         update_button = ttk.Button(self, text="Update DB", command=self.update_db)
-        update_button.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+        update_button.grid(row=0, column=3, padx=10, pady=10, sticky="ne")
 
         contact_button = ttk.Button(
             self,
             text="Contact developer",
             command=lambda: web.open("https://github.com/Shukolza", new=2),
         )
-        contact_button.grid(row=2, column=2, sticky="se", padx=10, pady=10)
+        contact_button.grid(row=2, column=3, sticky="se", padx=10, pady=10)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=0)
         self.rowconfigure(2, weight=1)
