@@ -42,7 +42,7 @@ The core idea is to offer a straightforward tool for administrators to manage li
 
 * **Secure Authentication:** Administrator access is protected using a hashed password mechanism (PBKDF2-HMAC-SHA256 with salting) to prevent unauthorized access.
 * **Simple Data Storage:** Library information and the administrator password hash are stored locally in a `libs_data.json` file, making the application self-contained and easy to set up for basic use cases.
-* **Activity Logging:** Key actions and potential errors are logged to a `log.txt` file for monitoring and debugging purposes.
+* **Activity Logging:** Key actions and potential errors are logged to a `(part_name)_log.txt` file for monitoring and debugging purposes.
 
 As a pet project, it serves as a practical exercise in GUI development with Tkinter, data persistence using JSON, implementing basic security practices, OOP with inheritance and abstract classes, and structuring a multi-component Python application (with planned Client and Worker modules). It aims to solve the simple problem of needing a dedicated interface for basic library data management without requiring a complex database setup.
 
@@ -66,7 +66,7 @@ git clone https://github.com/Shukolza/Library_Management.git && cd Library_Manag
 
 ### Run interface you need
 
-**For administrator:** (Partially implemented)
+**For administrator:** (Mostly implemented)
 
 ``` bash
 python3 administrator_gui.py
@@ -127,12 +127,7 @@ See the [ROADMAP](ROADMAP.md) file
 
 ## Contribution
 
-Contributors are always welcome! To contribute, you need:
-
-1. Fork repository
-2. Do all things in your own fork
-3. Create Pull Request
-4. Wait for my comments and merge!
+Contributors are always welcome - see the [CONTRIBUTING](CONTRIBUTING.md) file for details.
 
 ---
 
