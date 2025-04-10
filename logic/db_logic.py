@@ -57,6 +57,7 @@ class LibraryDatabase:
         """Load data from a JSON file with a loading window."""
         loading_window = LoadingWindow()
         logging.info(f"Loading DB from {file_path}")
+        self._libs_data = []
 
         try:
             # Load data from file

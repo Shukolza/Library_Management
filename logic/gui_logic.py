@@ -57,7 +57,11 @@ class AdminMainWindow(tk.Tk):
         )
         lib_delete_button.grid(row=1, column=2)
 
-        lib_edit_button = ttk.Button(self, text="Edit library")
+        lib_edit_button = ttk.Button(
+            self,
+            text="Edit library",
+            command=lambda: EditLibraryWindow(self._libraries_db, self),
+        )
         lib_edit_button.grid(row=1, column=3, sticky="w", padx=(30, 0))
 
         update_button = ttk.Button(self, text="Update DB", command=self.update_db)
@@ -190,8 +194,7 @@ class DeleteLibraryWindow(LibraryActionWindow):
 
     def __init__(self, db: LibraryDatabase, root: tk.Tk) -> None:
         super().__init__(db, root, "Delete Library")
-        self._window.geometry("600x800")  # Фиксированный размер окна
-        self._window.resizable(False, False)  # Запрет изменения размера
+        self._window.geometry("600x800")
 
     def _create_action_widgets(self) -> None:
         """Add deletion-specific widgets"""
@@ -205,21 +208,126 @@ class DeleteLibraryWindow(LibraryActionWindow):
         """Handle deletion"""
         library = self._get_selected_library()
         if not library:
-            messagebox.showerror("Error", "Please select a library to delete!")  # type: ignore
+            show_custom_message(
+                self._window, "Error", "Please select a library to delete!", "error"
+            )
             return
 
         name = library[0]
         try:
             self._db.delete_library(name)
-            messagebox.showinfo(  # type: ignore
-                "Success", f"Successfully deleted library {self._lib_combobox.get()}"
+            self._db.save_data(DB_PATH)
+            show_custom_message(
+                self._window,
+                "Success",
+                f"Successfully deleted library {self._lib_combobox.get()}",
             )
             self._window.destroy()
         except DatabaseException:
-            messagebox.showerror(  # type: ignore
+            show_custom_message(
+                self._window,
                 "Error",
                 f"Could not delete library '{name}'. It might have been already deleted. Please use 'Update DB' button",
+                "error",
             )
+
+
+class EditLibraryWindow(LibraryActionWindow):
+    """Window for editing libs info without losing data"""
+
+    def __init__(self, db: LibraryDatabase, root: tk.Tk) -> None:
+        super().__init__(db, root, "Edit library")
+        self._window.geometry("600x800")
+        messagebox.showinfo("Note", "Such library editing is SAFE. No data will be lost! \n :)")  # type: ignore
+
+    def _create_action_widgets(self) -> None:
+        """Add editing-specific widgets"""
+        self._edit_button = ttk.Button(
+            self._window, text="Edit", command=self._handle_action
+        )
+        self._edit_button.grid(row=3, column=0, pady=50)
+        self._window.rowconfigure(3, weight=1)
+
+    def _handle_action(self) -> None:
+        """Handle editing libs"""
+        library = self._get_selected_library()
+        if not library:
+            messagebox.showerror("Error", "Please select a library to edit!")  # type: ignore
+            return
+        old_name, old_city, old_address = library
+
+        self._edit_window = tk.Toplevel(self._window)
+        self._edit_window.title("Edit")
+        self._edit_window.geometry("300x300")
+
+        title = ttk.Label(
+            self._edit_window,
+            text="Please select what do you want to edit",
+            anchor="center",
+        )
+        title.grid(column=0, row=0, sticky="nsew")
+
+        options_for_edit = ["Name", "City", "Address"]
+        chosen_option = tk.StringVar(self._window)
+
+        choose_combobox = ttk.Combobox(
+            self._edit_window, textvariable=chosen_option, values=options_for_edit
+        )
+        choose_combobox["state"] = "readonly"
+        choose_combobox.grid(column=0, row=1, sticky="nsew")
+
+        new_value_entry_title = ttk.Label(
+            self._edit_window,
+            text=f"Please enter new value",
+        )
+        new_value_entry_title.grid(column=0, row=2)
+        new_value_entry = ttk.Entry(self._edit_window)
+        new_value_entry.grid(column=0, row=3)
+
+        choose_button = ttk.Button(
+            self._edit_window,
+            text="Edit",
+            command=lambda: edit(
+                old_name, choose_combobox.get().lower(), new_value_entry.get()
+            ),
+        )
+        choose_button.grid(column=0, row=4)
+
+        current_values_label = ttk.Label(
+            self._edit_window,
+            text=f"Current values:\nName: {old_name}\nCity: {old_city}\nAddress: {old_address}",
+        )
+        current_values_label.grid(column=0, row=5)
+
+        # Configure grid
+        self._edit_window.columnconfigure(0, weight=1)
+
+        def edit(lib_name: str, type: str, new_value: str) -> None:
+            """Edit lib info"""
+
+            def get_old_value(type: str) -> str:
+                """Function to get old value of type"""
+                if type == "name":
+                    return old_name
+                if type == "city":
+                    return old_city
+                return old_address
+
+            old_value = get_old_value(type)
+            if not type:
+                messagebox.showerror("Error", "Please choose what to edit!")  # type: ignore
+                return
+            if not new_value:
+                messagebox.showerror("Error", "Please enter new value!")  # type: ignore
+                return
+            if new_value == old_value:
+                show_custom_message(
+                    self._edit_window, "Error", "New value is same as old one!", "error"
+                )
+                return
+            
+            #TODO. I need to develop DB method first.
+            
 
 
 def set_icon(window: tk.Tk) -> None:
