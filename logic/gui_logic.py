@@ -14,7 +14,7 @@ from logic.db_logic import (
     EDIT_TYPE_NAME,
     EDIT_TYPE_CITY,
     EDIT_TYPE_ADDRESS,
-    VALID_EDIT_TYPES
+    VALID_EDIT_TYPES,
 )
 from logic.gui_utils import center_window
 from config import DB_PATH, ICON_PATH
@@ -379,7 +379,7 @@ class EditLibraryWindow(LibraryActionWindow):
             messagebox.showerror("Error", "Please enter new value!")  # type: ignore
             return
         if type not in VALID_EDIT_TYPES:
-            messagebox.showerror("Error", f"Invalid edit type {type}") # type: ignore
+            messagebox.showerror("Error", f"Invalid edit type {type}")  # type: ignore
             return
         old_value = get_old_value(type)
         if new_value == old_value:
@@ -410,7 +410,7 @@ class EditLibraryWindow(LibraryActionWindow):
                 self._edit_window,
                 "Error",
                 f"Failed to save changes!\n{e}\nContact system administrator.",
-                "error"
+                "error",
             )
             return
         else:

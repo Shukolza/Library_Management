@@ -22,3 +22,7 @@ __pycache__/
 # System files
 .DS_Store
 Thumbs.db
+
+AdminApp.spec
+build/
+dist/

@@ -233,7 +233,7 @@ class LibraryDatabase:
                             raise ValueError(
                                 f"Another library with name '{new_value}' already exists."
                             )
-                    lib.name = new_value        
+                    lib.name = new_value
                     break
                 if type_of_edit == EDIT_TYPE_CITY:
                     lib.city = new_value
