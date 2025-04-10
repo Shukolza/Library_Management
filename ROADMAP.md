@@ -27,7 +27,7 @@ Goal is to be simple, and functional on every work step from Installation to wor
 
 ## Current status
 
-**The project is now in active development, contributors are welcome.**
+**The project is now frozen (awaiting pyAuth development (i will add link when git repo ready)), contributors are welcome.**
 
 [*last stable tag (no releases yet)*](https://github.com/Shukolza/Library_Management/releases/tag/v0.3.0-admin-alpha).***It is latest tag, but it's recommended to get program from main branch, it is always stable and contains latest features.***
 
@@ -40,6 +40,7 @@ Goal is to be simple, and functional on every work step from Installation to wor
     * Creating libraries (name, city, address)
     * Libraries list showing
     * Deleting libraries
+    * Editing libraries info without losing data
 
 * Worker part:
 
@@ -75,8 +76,8 @@ Priorities depend on these factors (in descending order):
     2. ~~Safe authentification~~ <span style="color: green">Done</span>
     3. ~~Libraries list showing~~ <span style="color: green">Done</span>
     4. ~~Deleting libraries~~ <span style="color: green">Done</span>
-    5. Editing libraries info without losing data ***In progress***
-    6. (After finishing pyAuth development) Create multi-user authentification with my own pyAuth
+    5. Editing libraries info without losing data <span style="color: green">Done</span>
+    6. (After finishing pyAuth development) Create multi-user authentification with my own pyAuth ***FROZEN. See PyAuth (i'll add link when repo is ready)***
     7. (*After developing worker part*) Creating and attaching worker to library (login, password, library)
 
 ---
@@ -85,7 +86,7 @@ Priorities depend on these factors (in descending order):
 
 *Subject to change*
 
-**Will be continued, when I finish pyAuth development (dont'try to find such repo, I haven't started it yet)**
+**Will be continued, when I finish pyAuth development (i'll add link when repo ready)**
 
 1. **Worker part development:**
     1. Integrate pyAuth for safe authentification
@@ -111,8 +112,4 @@ Open new [Issue](https://github.com/Shukolza/Library_Management/issues) and desc
 2. **Feature requests**.
 Open new [Issue](https://github.com/Shukolza/Library_Management/issues) and describe feature you want to see in app.
 3. **Contributing**.
-    1. Fork this repository.
-    2. Do all things in your own repo.
-    3. Send pull request, and wait for my comments.
-    ***Want to contribute straight here?***
-    Contact [me](https://t.me/shukolza).
+    See [CONTRIBUTING](CONTRIBUTING.md)
