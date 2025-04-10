@@ -31,6 +31,7 @@ Goal is to be simple, and functional on every work step from Installation to wor
 
 [*last stable tag (no releases yet)*](https://github.com/Shukolza/Library_Management/releases/tag/v0.3.0-admin-alpha).***It is latest tag, but it's recommended to get program from main branch, it is always stable and contains latest features.***
 
+
 *Functions implemented:*
 
 * Administrator part:
