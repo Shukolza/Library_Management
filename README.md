@@ -44,7 +44,7 @@ The core idea is to offer a straightforward tool for administrators to manage li
 * **Simple Data Storage:** Library information and the administrator password hash are stored locally in a `libs_data.json` file, making the application self-contained and easy to set up for basic use cases.
 * **Activity Logging:** Key actions and potential errors are logged to a `log.txt` file for monitoring and debugging purposes.
 
-As a pet project, it serves as a practical exercise in GUI development with Tkinter, data persistence using JSON, implementing basic security practices, and structuring a multi-component Python application (with planned Client and Worker modules). It aims to solve the simple problem of needing a dedicated interface for basic library data management without requiring a complex database setup.
+As a pet project, it serves as a practical exercise in GUI development with Tkinter, data persistence using JSON, implementing basic security practices, OOP with inheritance and abstract classes, and structuring a multi-component Python application (with planned Client and Worker modules). It aims to solve the simple problem of needing a dedicated interface for basic library data management without requiring a complex database setup.
 
 ---
 

@@ -29,7 +29,8 @@ Goal is to be simple, and functional on every work step from Installation to wor
 
 **The project is now in active development, contributors are welcome.**
 
-[*last stable tag (no releases yet)*](https://github.com/Shukolza/Library_Management/releases/tag/v0.3.0-admin-alpha).***It is latest tag, but you can also get program from main branch, it is always stable and contains latest features.***
+[*last stable tag (no releases yet)*](https://github.com/Shukolza/Library_Management/releases/tag/v0.3.0-admin-alpha).***It is latest tag, but it's recommended to get program from main branch, it is always stable and contains latest features.***
+
 
 *Functions implemented:*
 
@@ -84,7 +85,7 @@ Priorities depend on these factors (in descending order):
 
 *Subject to change*
 
-**Will be continued, when I finish pyAuth development**
+**Will be continued, when I finish pyAuth development (dont'try to find such repo, I haven't started it yet)**
 
 1. **Worker part development:**
     1. Integrate pyAuth for safe authentification

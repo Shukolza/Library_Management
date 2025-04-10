@@ -1,12 +1,21 @@
 """All project GUI logic"""
 
 import logging
+from abc import ABC, abstractmethod
 import tkinter as tk
 import webbrowser as web
 from tkinter import ttk
 from tkinter import messagebox
 
-from logic.db_logic import LibraryDatabase, DatabaseSaveError, DatabaseException
+from logic.db_logic import (
+    LibraryDatabase,
+    DatabaseSaveError,
+    DatabaseException,
+    EDIT_TYPE_NAME,
+    EDIT_TYPE_CITY,
+    EDIT_TYPE_ADDRESS,
+    VALID_EDIT_TYPES
+)
 from logic.gui_utils import center_window
 from config import DB_PATH, ICON_PATH
 
@@ -33,42 +42,50 @@ class AdminMainWindow(tk.Tk):
             font=("Arial", 14),
             anchor="center",
         )
-        title.grid(row=0, column=1, columnspan=2, pady=50, sticky="w")
+        title.grid(row=0, column=0, columnspan=4, pady=50)
 
         button_create = ttk.Button(
             self,
             text="Create new library",
             command=lambda: init_create_library_window(self._libraries_db, self),
         )
-        button_create.grid(column=0, row=1, pady=10, sticky="e")
+        button_create.grid(column=0, row=1, pady=10)
 
         libs_list_button = ttk.Button(
             self,
             text="Libraries list",
-            command=lambda: list_libs_window(self._libraries_db, self),
+            command=lambda: ViewLibrariesWindow(self._libraries_db, self),
         )
         libs_list_button.grid(column=1, row=1, pady=10, padx=10)
 
         lib_delete_button = ttk.Button(
             self,
             text="Delete library",
-            command=lambda: init_delete_lib_window(self._libraries_db, self),
+            command=lambda: DeleteLibraryWindow(self._libraries_db, self),
         )
-        lib_delete_button.grid(row=1, column=2, sticky="w")
+        lib_delete_button.grid(row=1, column=2)
+
+        lib_edit_button = ttk.Button(
+            self,
+            text="Edit library",
+            command=lambda: EditLibraryWindow(self._libraries_db, self),
+        )
+        lib_edit_button.grid(row=1, column=3, sticky="w", padx=(30, 0))
 
         update_button = ttk.Button(self, text="Update DB", command=self.update_db)
-        update_button.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+        update_button.grid(row=0, column=3, padx=10, pady=10, sticky="ne")
 
         contact_button = ttk.Button(
             self,
             text="Contact developer",
             command=lambda: web.open("https://github.com/Shukolza", new=2),
         )
-        contact_button.grid(row=2, column=2, sticky="se", padx=10, pady=10)
+        contact_button.grid(row=2, column=3, sticky="se", padx=10, pady=10)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=0)
         self.rowconfigure(2, weight=1)
@@ -78,6 +95,327 @@ class AdminMainWindow(tk.Tk):
         logging.debug("Updating DB...")
         self._libraries_db.load_data(DB_PATH)
         messagebox.showinfo("Success", "Database updated successfully")  # type: ignore
+
+
+class LibraryListWindow:
+    """Base class for windows that display library lists"""
+
+    def __init__(
+        self, db: LibraryDatabase, root: tk.Tk, title: str, geometry: str = "400x600"
+    ) -> None:
+        self._db = db
+        self._libs_info = db.get_readable_libs_info()
+
+        if len(self._libs_info) < 1:
+            messagebox.showinfo("No libraries", "No libraries avalible!")  # type: ignore
+            return
+
+        self._window = tk.Toplevel(root)
+        self._window.title(title)
+        self._window.geometry(geometry)
+
+        self._create_base_widgets()
+        self._populate_list()
+        self._configure_grid()
+        center_window(self._window, root)
+
+    def _create_base_widgets(self):
+        """Create common widgets"""
+        self._title = ttk.Label(self._window, text="Libraries", font=("Arial", 14))
+        self._title.grid(row=0, column=0, pady=50)
+
+        self._v_scrollbar = tk.Scrollbar(self._window, orient=tk.VERTICAL)
+        self._v_scrollbar.grid(column=1, row=1, sticky="ns")
+
+        self._info_text = tk.Text(self._window, yscrollcommand=self._v_scrollbar.set)
+        self._info_text.grid(row=1, column=0, sticky="nsew")
+
+        self._v_scrollbar.config(command=self._info_text.yview)  # type: ignore
+
+    def _populate_list(self):
+        """Fill Text with libs info"""
+        for info_tuple in self._libs_info:
+            self._info_text.insert(
+                tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
+            )
+
+    def _configure_grid(self):
+        """Configure grid weights"""
+        self._window.columnconfigure(0, weight=1)
+        self._window.rowconfigure(1, weight=1)
+
+
+class LibraryActionWindow(LibraryListWindow, ABC):
+    """Abstract base for windows that preform actions on libraries"""
+
+    def __init__(
+        self, db: LibraryDatabase, root: tk.Tk, title: str, geometry: str = "400x600"
+    ) -> None:
+        super().__init__(db, root, title, geometry)
+        self._create_selection_widgets()
+        self._create_action_widgets()
+
+    def _create_selection_widgets(self) -> None:
+        """Create combobox for lib selection"""
+        libraries_to_choose = [
+            f"{info[0]} - {info[1]}, {info[2]}" for info in self._libs_info
+        ]
+
+        self._selected_library = tk.StringVar(self._window)
+        self._lib_combobox = ttk.Combobox(
+            self._window,
+            textvariable=self._selected_library,
+            values=libraries_to_choose,
+        )
+        self._lib_combobox["state"] = "readonly"
+        self._lib_combobox.grid(row=2, column=0)
+
+        self._window.rowconfigure(2, weight=1)
+
+    @abstractmethod
+    def _create_action_widgets(self) -> None:
+        """Create widgets specific to the action"""
+        pass
+
+    @abstractmethod
+    def _handle_action(self) -> None:
+        """Handle main action of the window"""
+        pass
+
+    def _get_selected_library(self) -> tuple[str, str, str] | None:
+        """Get selected library info / None if nothing selected"""
+        selected_index = self._lib_combobox.current()
+        if selected_index < 0:
+            return None
+        return self._libs_info[selected_index]
+
+
+class ViewLibrariesWindow(LibraryListWindow):
+    """Window for viewing libraries list"""
+
+    def __init__(self, db: LibraryDatabase, root: tk.Tk) -> None:
+        super().__init__(db, root, "Libraries list")
+
+
+class DeleteLibraryWindow(LibraryActionWindow):
+    """Window for deleting libraries"""
+
+    def __init__(self, db: LibraryDatabase, root: tk.Tk) -> None:
+        super().__init__(db, root, "Delete Library")
+        self._window.geometry("600x800")
+
+    def _create_action_widgets(self) -> None:
+        """Add deletion-specific widgets"""
+        self._delete_button = ttk.Button(
+            self._window, text="Delete", command=self._handle_action
+        )
+        self._delete_button.grid(row=3, column=0, pady=50)
+        self._window.rowconfigure(3, weight=1)
+
+    def _handle_action(self) -> None:
+        """Handle deletion"""
+        library = self._get_selected_library()
+        if not library:
+            show_custom_message(
+                self._window, "Error", "Please select a library to delete!", "error"
+            )
+            return
+
+        name = library[0]
+        try:
+            self._db.delete_library(name)
+            self._db.save_data(DB_PATH)
+            show_custom_message(
+                self._window,
+                "Success",
+                f"Successfully deleted library {self._lib_combobox.get()}",
+            )
+            self._window.destroy()
+        except DatabaseException:
+            show_custom_message(
+                self._window,
+                "Error",
+                f"Could not delete library '{name}'. It might have been already deleted. Please use 'Update DB' button",
+                "error",
+            )
+
+
+class EditLibraryWindow(LibraryActionWindow):
+    """Window for editing libs info without losing data"""
+
+    def __init__(self, db: LibraryDatabase, root: tk.Tk) -> None:
+        super().__init__(db, root, "Edit library")
+        self._window.geometry("600x800")
+        messagebox.showinfo("Note", "Such library editing is SAFE. No data will be lost! \n :)")  # type: ignore
+
+    def _create_action_widgets(self) -> None:
+        """Add editing-specific widgets"""
+        self._edit_button = ttk.Button(
+            self._window, text="Edit", command=self._handle_action
+        )
+        self._edit_button.grid(row=3, column=0, pady=50)
+        self._window.rowconfigure(3, weight=1)
+
+    def _handle_action(self) -> None:
+        """Handle editing libs"""
+        library = self._get_selected_library()
+        if not library:
+            messagebox.showerror("Error", "Please select a library to edit!")  # type: ignore
+            return
+        old_name, old_city, old_address = library
+
+        self._edit_window = tk.Toplevel(self._window)
+        self._edit_window.title("Edit")
+        self._edit_window.geometry("300x300")
+
+        title = ttk.Label(
+            self._edit_window,
+            text="Please select what do you want to edit",
+            anchor="center",
+        )
+        title.grid(column=0, row=0, sticky="nsew")
+
+        options_for_display = ["Name", "City", "Address"]
+        self._edit_type_map = {
+            "Name": EDIT_TYPE_NAME,
+            "City": EDIT_TYPE_CITY,
+            "Address": EDIT_TYPE_ADDRESS,
+        }
+        chosen_option_display = tk.StringVar(self._window)
+
+        choose_combobox = ttk.Combobox(
+            self._edit_window,
+            textvariable=chosen_option_display,
+            values=options_for_display,
+        )
+        choose_combobox["state"] = "readonly"
+        choose_combobox.grid(column=0, row=1, sticky="nsew")
+
+        new_value_entry_title = ttk.Label(
+            self._edit_window,
+            text=f"Please enter new value",
+        )
+        new_value_entry_title.grid(column=0, row=2)
+        new_value_entry = ttk.Entry(self._edit_window)
+        new_value_entry.grid(column=0, row=3)
+
+        choose_button = ttk.Button(
+            self._edit_window,
+            text="Edit",
+            command=lambda: self._perform_edit(
+                old_name,
+                self._edit_type_map.get(chosen_option_display.get()),
+                new_value_entry.get(),
+                old_address,
+                old_city,
+            ),
+        )
+        choose_button.grid(column=0, row=4)
+
+        current_values_label = ttk.Label(
+            self._edit_window,
+            text=f"Current values:\nName: {old_name}\nCity: {old_city}\nAddress: {old_address}",
+        )
+        current_values_label.grid(column=0, row=5)
+
+        # Configure grid
+        self._edit_window.columnconfigure(0, weight=1)
+
+        # Center window
+        center_window(self._edit_window, self._window)
+
+    def _refresh_lib_list(self):
+        """Refresh libraries list it Text & Combobox"""
+        logging.debug("Refreshing libs list...")
+        self._libs_info = self._db.get_readable_libs_info()
+
+        # Update text
+        try:
+            self._info_text.config(state=tk.NORMAL)
+            self._info_text.delete("1.0", tk.END)
+
+            for info_tuple in self._libs_info:
+                self._info_text.insert(
+                    tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
+                )
+            self._info_text.config(state=tk.DISABLED)
+        except tk.TclError as e:  # type: ignore
+            logging.exception("Error updating text:")
+
+        # Update combobox
+        try:
+            libraries_to_choose = [
+                f"{info[0]} - {info[1]}, {info[2]}" for info in self._libs_info
+            ]
+            self._lib_combobox.config(values=libraries_to_choose)
+            self._lib_combobox.set("")  # Reset chosen
+            # ensure it's still readonly
+            self._lib_combobox["state"] = "readonly"
+        except tk.TclError as e:  # type: ignore
+            logging.exception(f"Error updating Combobox widget:")
+
+    def _perform_edit(
+        self,
+        lib_name: str,
+        type: str | None,
+        new_value: str,
+        old_address: str,
+        old_city: str,
+    ) -> None:
+        """Edit lib info"""
+
+        def get_old_value(type: str) -> str:
+            """Function to get old value of type"""
+            if type == EDIT_TYPE_NAME:
+                return lib_name
+            if type == EDIT_TYPE_CITY:
+                return old_city
+            return old_address
+
+        if not type:
+            messagebox.showerror("Error", "Please choose what to edit!")  # type: ignore
+            return
+        if not new_value:
+            messagebox.showerror("Error", "Please enter new value!")  # type: ignore
+            return
+        if type not in VALID_EDIT_TYPES:
+            messagebox.showerror("Error", f"Invalid edit type {type}") # type: ignore
+            return
+        old_value = get_old_value(type)
+        if new_value == old_value:
+            show_custom_message(
+                self._edit_window, "Error", "New value is same as old one!", "error"
+            )
+            return
+
+        try:
+            self._db.edit_library_data(lib_name, type, new_value)
+        except ValueError as e:
+            show_custom_message(
+                self._edit_window,
+                "Error",
+                f"Error occured while editing:\n{e}\n if you have no idea what's it and how to fix it, contact system administrator",
+                "error",
+            )
+            self._edit_window.destroy()
+            return
+        show_custom_message(
+            self._edit_window, "Success", "Successfully edited library!"
+        )
+        try:
+            self._db.save_data(DB_PATH)
+        except DatabaseSaveError as e:
+            logging.exception("Failed to save data in _perform_edit")
+            show_custom_message(
+                self._edit_window,
+                "Error",
+                f"Failed to save changes!\n{e}\nContact system administrator.",
+                "error"
+            )
+            return
+        else:
+            self._refresh_lib_list()
+        self._edit_window.destroy()
 
 
 def set_icon(window: tk.Tk) -> None:
@@ -332,118 +670,3 @@ def ask_for_password(db: LibraryDatabase) -> bool:
     logging.debug(f"ask_for_password: returning {password_ok}")
 
     return password_ok
-
-
-def list_libs_window(db: LibraryDatabase, root: tk.Tk) -> None:
-    """Create a window to list all libraries in the database."""
-    logging.info("list_libs_window: Called, getting libs info...")
-    libs_info = db.get_readable_libs_info()
-    logging.debug(f"list_libs_window: libs_info: {libs_info}")
-    if len(libs_info) < 1:
-        logging.info("list_libs_window: No libraries found.")
-        messagebox.showinfo("No libs found", "No libraries to show!")  # type: ignore
-        return
-    logging.debug("list_libs_window: Creating toplevel...")
-    list_window = tk.Toplevel(root)
-    list_window.title("Library List")
-    list_window.geometry("400x600")
-    logging.info("list_libs_window: Creating widgets...")
-
-    title = ttk.Label(list_window, text="Libraries", font=("Arial", 14))
-    title.grid(row=0, column=0, pady=50)
-
-    v_scrollbar = tk.Scrollbar(list_window, orient=tk.VERTICAL)
-    v_scrollbar.grid(column=1, row=1, sticky="ns")
-
-    info_text = tk.Text(list_window, yscrollcommand=v_scrollbar.set)
-    info_text.grid(row=1, column=0, sticky="nsew")
-
-    logging.info("list_libs_window: Filling text with info...")
-    for info_tuple in libs_info:
-        info_text.insert(
-            tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
-        )
-
-    v_scrollbar.config(command=info_text.yview)  # type: ignore
-
-    logging.debug("list_libs_window: Configuring grid...")
-    list_window.columnconfigure(0, weight=1)
-    list_window.rowconfigure(1, weight=1)
-
-    logging.debug("list_libs_window: centralizing...")
-    center_window(list_window, root)
-
-
-def init_delete_lib_window(db: LibraryDatabase, root: tk.Tk) -> None:
-    """Create GUI window to admin choose library to delete"""
-    logging.info("init_delete_lib_window: Called, getting libs info...")
-    libs_info = db.get_readable_libs_info()
-    logging.debug(f"init_delete_lib_window: libs_info = {libs_info}")
-    if len(libs_info) < 1:
-        logging.info("init_delete_lib_window: No libraries found.")
-        messagebox.showinfo("No libs found", "No libraries to delete!")  # type: ignore
-        return
-    logging.debug("init_delete_lib_window: Creating toplevel...")
-    delete_window = tk.Toplevel(root)
-    delete_window.title("Delete library")
-    delete_window.geometry("600x800")
-    logging.info("init_delete_lib_window: Creating widgets...")
-    title = ttk.Label(delete_window, text="Libraries", font=("Arial", 14))
-    title.grid(row=0, column=0, pady=50)
-
-    v_scrollbar = tk.Scrollbar(delete_window, orient=tk.VERTICAL)
-    v_scrollbar.grid(column=1, row=1, sticky="ns")
-
-    info_text = tk.Text(delete_window, yscrollcommand=v_scrollbar.set)
-    info_text.grid(row=1, column=0, sticky="nsew")
-
-    logging.info("init_delete_lib_window: Filling text with info...")
-    for info_tuple in libs_info:
-        info_text.insert(
-            tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
-        )
-
-    v_scrollbar.config(command=info_text.yview)  # type: ignore
-
-    libraries_to_choose = [
-        f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}"
-        for info_tuple in libs_info
-    ]
-
-    selected_library = tk.StringVar(delete_window)
-
-    library_to_delete_combobox = ttk.Combobox(
-        delete_window, textvariable=selected_library, values=libraries_to_choose
-    )
-    library_to_delete_combobox["state"] = "readonly"
-    library_to_delete_combobox.grid(row=2, column=0)
-
-    def on_delete():
-        """Function for delete button. Gets library name and calls db.delete_library"""
-        selected_index = library_to_delete_combobox.current()
-        if selected_index < 0:
-            logging.warning("init_delete_lib_window: on_delete: Library not selected")
-            messagebox.showerror("Error", "Please select a library to delete!")  # type: ignore
-            return
-        selected_name = libs_info[selected_index][0]
-        try:
-            db.delete_library(selected_name)
-            messagebox.showinfo("Success", f"Successfully deleted library {libraries_to_choose[selected_index]}")  # type: ignore
-            delete_window.destroy()
-        except DatabaseException:
-            logging.exception(
-                f"init_delete_lib_window: on_delete: Could not find library {selected_name}"
-            )
-            messagebox.showerror("Error", f"Could not delete library '{selected_name}'. It might have been already deleted. Please use 'Update DB' button")  # type: ignore
-
-    delete_button = ttk.Button(delete_window, text="Delete", command=on_delete)
-    delete_button.grid(row=3, column=0, pady=50)
-
-    logging.debug("init_delete_lib_window: Configuring grid...")
-    delete_window.columnconfigure(0, weight=1)
-    delete_window.rowconfigure(1, weight=1)
-    delete_window.rowconfigure(2, weight=1)
-    delete_window.rowconfigure(3, weight=1)
-
-    logging.debug("init_delete_lib_window: centralizing...")
-    center_window(delete_window, root)
