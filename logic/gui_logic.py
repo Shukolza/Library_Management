@@ -7,7 +7,15 @@ import webbrowser as web
 from tkinter import ttk
 from tkinter import messagebox
 
-from logic.db_logic import LibraryDatabase, DatabaseSaveError, DatabaseException
+from logic.db_logic import (
+    LibraryDatabase,
+    DatabaseSaveError,
+    DatabaseException,
+    EDIT_TYPE_NAME,
+    EDIT_TYPE_CITY,
+    EDIT_TYPE_ADDRESS,
+    VALID_EDIT_TYPES
+)
 from logic.gui_utils import center_window
 from config import DB_PATH, ICON_PATH
 
@@ -267,11 +275,18 @@ class EditLibraryWindow(LibraryActionWindow):
         )
         title.grid(column=0, row=0, sticky="nsew")
 
-        options_for_edit = ["Name", "City", "Address"]
-        chosen_option = tk.StringVar(self._window)
+        options_for_display = ["Name", "City", "Address"]
+        self._edit_type_map = {
+            "Name": EDIT_TYPE_NAME,
+            "City": EDIT_TYPE_CITY,
+            "Address": EDIT_TYPE_ADDRESS,
+        }
+        chosen_option_display = tk.StringVar(self._window)
 
         choose_combobox = ttk.Combobox(
-            self._edit_window, textvariable=chosen_option, values=options_for_edit
+            self._edit_window,
+            textvariable=chosen_option_display,
+            values=options_for_display,
         )
         choose_combobox["state"] = "readonly"
         choose_combobox.grid(column=0, row=1, sticky="nsew")
@@ -287,8 +302,12 @@ class EditLibraryWindow(LibraryActionWindow):
         choose_button = ttk.Button(
             self._edit_window,
             text="Edit",
-            command=lambda: edit(
-                old_name, choose_combobox.get().lower(), new_value_entry.get()
+            command=lambda: self._perform_edit(
+                old_name,
+                self._edit_type_map.get(chosen_option_display.get()),
+                new_value_entry.get(),
+                old_address,
+                old_city,
             ),
         )
         choose_button.grid(column=0, row=4)
@@ -302,32 +321,101 @@ class EditLibraryWindow(LibraryActionWindow):
         # Configure grid
         self._edit_window.columnconfigure(0, weight=1)
 
-        def edit(lib_name: str, type: str, new_value: str) -> None:
-            """Edit lib info"""
+        # Center window
+        center_window(self._edit_window, self._window)
 
-            def get_old_value(type: str) -> str:
-                """Function to get old value of type"""
-                if type == "name":
-                    return old_name
-                if type == "city":
-                    return old_city
-                return old_address
+    def _refresh_lib_list(self):
+        """Refresh libraries list it Text & Combobox"""
+        logging.debug("Refreshing libs list...")
+        self._libs_info = self._db.get_readable_libs_info()
 
-            old_value = get_old_value(type)
-            if not type:
-                messagebox.showerror("Error", "Please choose what to edit!")  # type: ignore
-                return
-            if not new_value:
-                messagebox.showerror("Error", "Please enter new value!")  # type: ignore
-                return
-            if new_value == old_value:
-                show_custom_message(
-                    self._edit_window, "Error", "New value is same as old one!", "error"
+        # Update text
+        try:
+            self._info_text.config(state=tk.NORMAL)
+            self._info_text.delete("1.0", tk.END)
+
+            for info_tuple in self._libs_info:
+                self._info_text.insert(
+                    tk.END, f"{info_tuple[0]} - {info_tuple[1]}, {info_tuple[2]}\n"
                 )
-                return
-            
-            #TODO. I need to develop DB method first.
-            
+            self._info_text.config(state=tk.DISABLED)
+        except tk.TclError as e:  # type: ignore
+            logging.exception("Error updating text:")
+
+        # Update combobox
+        try:
+            libraries_to_choose = [
+                f"{info[0]} - {info[1]}, {info[2]}" for info in self._libs_info
+            ]
+            self._lib_combobox.config(values=libraries_to_choose)
+            self._lib_combobox.set("")  # Reset chosen
+            # ensure it's still readonly
+            self._lib_combobox["state"] = "readonly"
+        except tk.TclError as e:  # type: ignore
+            logging.exception(f"Error updating Combobox widget:")
+
+    def _perform_edit(
+        self,
+        lib_name: str,
+        type: str | None,
+        new_value: str,
+        old_address: str,
+        old_city: str,
+    ) -> None:
+        """Edit lib info"""
+
+        def get_old_value(type: str) -> str:
+            """Function to get old value of type"""
+            if type == EDIT_TYPE_NAME:
+                return lib_name
+            if type == EDIT_TYPE_CITY:
+                return old_city
+            return old_address
+
+        if not type:
+            messagebox.showerror("Error", "Please choose what to edit!")  # type: ignore
+            return
+        if not new_value:
+            messagebox.showerror("Error", "Please enter new value!")  # type: ignore
+            return
+        if type not in VALID_EDIT_TYPES:
+            messagebox.showerror("Error", f"Invalid edit type {type}") # type: ignore
+            return
+        old_value = get_old_value(type)
+        if new_value == old_value:
+            show_custom_message(
+                self._edit_window, "Error", "New value is same as old one!", "error"
+            )
+            return
+
+        try:
+            self._db.edit_library_data(lib_name, type, new_value)
+        except ValueError as e:
+            show_custom_message(
+                self._edit_window,
+                "Error",
+                f"Error occured while editing:\n{e}\n if you have no idea what's it and how to fix it, contact system administrator",
+                "error",
+            )
+            self._edit_window.destroy()
+            return
+        show_custom_message(
+            self._edit_window, "Success", "Successfully edited library!"
+        )
+        try:
+            self._db.save_data(DB_PATH)
+        except DatabaseSaveError as e:
+            logging.exception("Failed to save data in _perform_edit")
+            show_custom_message(
+                self._edit_window,
+                "Error",
+                f"Failed to save changes!\n{e}\nContact system administrator.",
+                "error"
+            )
+            return
+        else:
+            self._refresh_lib_list()
+        self._edit_window.destroy()
 
 
 def set_icon(window: tk.Tk) -> None:

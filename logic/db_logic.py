@@ -10,14 +10,22 @@ from pathlib import Path
 
 from logic.loading_window import LoadingWindow
 
+# Constans for password hashing
 _HASH_ALGORITHM = "sha256"
 _HASH_ITERATIONS = 600_000
 
+# Constants for libs data keys
 _LIBRARIES_DATA_KEY = "libraries_data"
 _ADMIN_PASSWORD_DATA_KEY = "administrator_password"
 _LIB_NAME_DATA_KEY = "name"
 _LIB_CITY_DATA_KEY = "city"
 _LIB_ADDRESS_DATA_KEY = "address"
+
+# Constants for editing types
+EDIT_TYPE_NAME = "name"
+EDIT_TYPE_CITY = "city"
+EDIT_TYPE_ADDRESS = "address"
+VALID_EDIT_TYPES = {EDIT_TYPE_NAME, EDIT_TYPE_CITY, EDIT_TYPE_ADDRESS}
 
 
 class DatabaseException(Exception):
@@ -190,3 +198,58 @@ class LibraryDatabase:
                 self._libs_data.remove(lib)
                 return
         raise DatabaseException("Library not found when deleting!")
+
+    def edit_library_data(
+        self, lib_name: str, type_of_edit: str, new_value: str
+    ) -> None:
+        """Edit library data in the system.
+        This method allows safe modification of library properties including name, city, and address.
+        Args:
+            lib_name (str): Current name of the library to edit
+            type_of_edit (str): Type of edit to perform ('name', 'city', or 'address')
+            new_value (str): New value to set for the specified field
+        Raises:
+            ValueError: If any parameters are empty/None
+            ValueError: If type_of_edit is not 'name', 'city' or 'address'
+            ValueError: If library with given name not found
+        Returns:
+            None
+        """
+        if not lib_name or not type_of_edit or not new_value:
+            logging.warning("Empty parameters while editing. Raising ValueError...")
+            raise ValueError("All parameters (name, type, new value) must be filled.")
+        if type_of_edit not in VALID_EDIT_TYPES:
+            logging.warning(
+                f"Unsupported edit type: {type_of_edit}. Raising ValueError..."
+            )
+            raise ValueError(
+                f"Invalid edit type: {type_of_edit}. Must be one of {VALID_EDIT_TYPES}"
+            )
+        for lib in self._libs_data:
+            if lib.name == lib_name:
+                if type_of_edit == EDIT_TYPE_NAME:
+                    for other_lib in self._libs_data:
+                        if other_lib is not lib and other_lib.name == new_value:
+                            raise ValueError(
+                                f"Another library with name '{new_value}' already exists."
+                            )
+                    lib.name = new_value        
+                    break
+                if type_of_edit == EDIT_TYPE_CITY:
+                    lib.city = new_value
+                    break
+                if type_of_edit == EDIT_TYPE_ADDRESS:
+                    for other_lib in self._libs_data:
+                        if (
+                            other_lib is not lib
+                            and other_lib.address == new_value
+                            and other_lib.city == lib.city
+                        ):
+                            raise ValueError(
+                                f"Another library with address '{new_value}' already exists in the same city {lib.city}"
+                            )
+                    lib.address = new_value
+                    break
+        else:
+            logging.warning("Invalid lib name while editing. Raising ValueError...")
+            raise ValueError(f"Library '{lib_name}' not found")
