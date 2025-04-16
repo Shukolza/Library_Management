@@ -60,9 +60,19 @@ To run the application, you'll need Python 3 installed on your system. No extern
 git clone https://github.com/Shukolza/Library_Management.git && cd Library_Management
 ```
 
+### From executable (only admin part)
+
+**Go to latest release page**
+
+[latest release](https://github.com/Shukolza/Library_Management/releases/tag/v0.4.0-admin-beta)
+
+**Download executable for your OS**
+
+*To launch on linux*: ```./LINUX-EXECUTABLE```
+
 ---
 
-## Usage
+## Usage (if installed from source code)
 
 ### Run interface you need
 

@@ -29,8 +29,7 @@ Goal is to be simple, and functional on every work step from Installation to wor
 
 **The project is now frozen (awaiting pyAuth development (i will add link when git repo ready)), contributors are welcome.**
 
-[*last stable tag (no releases yet)*](https://github.com/Shukolza/Library_Management/releases/tag/v0.4.0-admin-beta).***It is latest tag, but it's recommended to get program from main branch, it is always stable and contains latest features.***
-
+[*latest release*](https://github.com/Shukolza/Library_Management/releases).***It is latest release, but it's recommended to get program from main branch, it is always stable and contains latest features.***
 
 *Functions implemented:*
 
