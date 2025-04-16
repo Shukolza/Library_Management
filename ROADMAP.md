@@ -1,114 +1,114 @@
-# Project Roadmap
+# План развития проекта
 
-This roadmap is a plan of developing Library_Management.
-Here is functions plans and steps of development.
-*Subject to change.*
-
----
-
-## Contents
-
-1. [Vision](#vision)
-2. [Current status](#current-status)
-3. [My priorities](#my-priorities)
-4. [Immediate plans](#immediate-plans)
-5. [Future plans](#future-plans)
-6. [How can you help?](#how-can-you-help)
+Этот план развития описывает разработку Library_Management.
+Здесь представлены планы функций и этапы разработки.
+*Может быть изменено.*
 
 ---
 
-## Vision
+## Содержание
 
-Library Management System is a GUI-based application that allows users to manage libraries, books, workers of libraries, and clients.
-The system will provide a user-friendly interface for users to perform various operations.
-Goal is to be simple, and functional on every work step from Installation to working.
-
----
-
-## Current status
-
-**The project is now frozen (awaiting pyAuth development (i will add link when git repo ready)), contributors are welcome.**
-
-[*latest release*](https://github.com/Shukolza/Library_Management/releases).***It is latest release, but it's recommended to get program from main branch, it is always stable and contains latest features.***
-
-*Functions implemented:*
-
-* Administrator part:
-
-    * Login with safely stored password (PBKDF2-HMAC-SHA256 with salting)
-    * Creating libraries (name, city, address)
-    * Libraries list showing
-    * Deleting libraries
-    * Editing libraries info without losing data
-
-* Worker part:
-
-    **Not implemented yet**
-
-* Client part:
-
-    **Not implemented yet**
+1. [Концепция](#концепция)
+2. [Текущий статус](#текущий-статус)
+3. [Мои приоритеты](#мои-приоритеты)
+4. [Ближайшие планы](#ближайшие-планы)
+5. [Будущие планы](#будущие-планы)
+6. [Как вы можете помочь?](#как-вы-можете-помочь)
 
 ---
 
-## My priorities
+## Концепция
 
-Priorities depend on these factors (in descending order):
-
-1. **Stability** - I want to make sure that the system is stable and works as it must.
-2. **Community requests ([Issues](https://github.com/Shukolza/Library_Management/issues))**:
-    1. **Bugs reports**.
-    2. **Feature requests**.
-3. **Code style and quality** - before adding anything new, i always do code review.
-4. **Update documentation** - before adding anything new, i always update documentation.
-5. **New features according to plan**
-6. **Realization complexity** - sometimes, some simple features may be realized before hard ones.
+Library Management System - это приложение с графическим интерфейсом, которое позволяет пользователям управлять библиотеками, книгами, работниками библиотек и клиентами.
+Система предоставит удобный интерфейс для выполнения различных операций.
+Цель - быть простой и функциональной на каждом этапе работы от установки до использования.
 
 ---
 
-## Immediate plans
+## Текущий статус
 
-*Subject to change*
+**Проект сейчас заморожен (ожидается разработка pyAuth (я добавлю ссылку, когда git репозиторий будет готов)), участники приветствуются.**
 
-**Finish administrator GUI development**:
-    1. ~~Creating libraries~~ <span style="color: green">Done</span>
-    2. ~~Safe authentification~~ <span style="color: green">Done</span>
-    3. ~~Libraries list showing~~ <span style="color: green">Done</span>
-    4. ~~Deleting libraries~~ <span style="color: green">Done</span>
-    5. Editing libraries info without losing data <span style="color: green">Done</span>
-    6. (After finishing pyAuth development) Create multi-user authentification with my own pyAuth ***FROZEN. See PyAuth (i'll add link when repo is ready)***
-    7. (*After developing worker part*) Creating and attaching worker to library (login, password, library)
+[*последний релиз*](https://github.com/Shukolza/Library_Management/releases).***Это последний релиз, но рекомендуется получать программу из ветки main, она всегда стабильна и содержит последние функции.***
 
----
+*Реализованные функции:*
 
-## Future plans
+* Часть администратора:
 
-*Subject to change*
+  * Вход с безопасно хранящимся паролем (PBKDF2-HMAC-SHA256 с солью)
+  * Создание библиотек (название, город, адрес)
+  * Отображение списка библиотек
+  * Удаление библиотек
+  * Редактирование информации о библиотеках без потери данных
 
-**Will be continued, when I finish pyAuth development (i'll add link when repo ready)**
+* Часть работника:
 
-1. **Worker part development:**
-    1. Integrate pyAuth for safe authentification
-    2. Registering books (author, creating year, ID, desc, etc.)
-    3. Books list showing
-    4. Deleting books
-    5. Editing books info without losing data
-    6. Registering and attaching clients to library (login, password, library)
+    **Ещё не реализовано**
 
-2. **Client part development:**
-    1. Integrate pyAuth for safe authentification
-    2. Borrowing books
-    3. Borrowed books list showing
-    4. Returning books
-    5. Delete account
+* Часть клиента:
+
+    **Ещё не реализовано**
 
 ---
 
-## How can you help?
+## Мои приоритеты
 
-1. **Report bugs**.
-Open new [Issue](https://github.com/Shukolza/Library_Management/issues) and describe bug you found. Always send logs (for admin part - "admin_log.txt")
-2. **Feature requests**.
-Open new [Issue](https://github.com/Shukolza/Library_Management/issues) and describe feature you want to see in app.
-3. **Contributing**.
-    See [CONTRIBUTING](CONTRIBUTING.md)
+Приоритеты зависят от следующих факторов (в порядке убывания):
+
+1. **Стабильность** - Я хочу убедиться, что система стабильна и работает как должна.
+2. **Запросы сообщества ([Issues](https://github.com/Shukolza/Library_Management/issues))**:
+    1. **Сообщения об ошибках**.
+    2. **Запросы функций**.
+3. **Стиль и качество кода** - перед добавлением нового я всегда делаю проверку кода.
+4. **Обновление документации** - перед добавлением нового я всегда обновляю документацию.
+5. **Новые функции согласно плану**
+6. **Сложность реализации** - иногда простые функции могут быть реализованы раньше сложных.
+
+---
+
+## Ближайшие планы
+
+*Может быть изменено*
+
+**Завершить разработку GUI администратора**:
+    1. ~~Создание библиотек~~ <span style="color: green">Готово</span>
+    2. ~~Безопасная аутентификация~~ <span style="color: green">Готово</span>
+    3. ~~Отображение списка библиотек~~ <span style="color: green">Готово</span>
+    4. ~~Удаление библиотек~~ <span style="color: green">Готово</span>
+    5. Редактирование информации о библиотеках без потери данных <span style="color: green">Готово</span>
+    6. (После завершения разработки pyAuth) Создать многопользовательскую аутентификацию с моим собственным pyAuth ***ЗАМОРОЖЕНО. См. PyAuth (я добавлю ссылку, когда репозиторий будет готов)***
+    7. (*После разработки части работника*) Создание и прикрепление работника к библиотеке (логин, пароль, библиотека)
+
+---
+
+## Будущие планы
+
+*Может быть изменено*
+
+**Будет продолжено, когда я закончу разработку pyAuth (я добавлю ссылку, когда репозиторий будет готов)**
+
+1. **Разработка части работника:**
+    1. Интегрировать pyAuth для безопасной аутентификации
+    2. Регистрация книг (автор, год создания, ID, описание и т.д.)
+    3. Отображение списка книг
+    4. Удаление книг
+    5. Редактирование информации о книгах без потери данных
+    6. Регистрация и прикрепление клиентов к библиотеке (логин, пароль, библиотека)
+
+2. **Разработка части клиента:**
+    1. Интегрировать pyAuth для безопасной аутентификации
+    2. Получение книг
+    3. Отображение списка взятых книг
+    4. Возврат книг
+    5. Удаление аккаунта
+
+---
+
+## Как вы можете помочь?
+
+1. **Сообщайте об ошибках**.
+Откройте новый [Issue](https://github.com/Shukolza/Library_Management/issues) и опишите найденную ошибку. Всегда отправляйте логи (для части администратора - "admin_log.txt")
+2. **Запросы функций**.
+Откройте новый [Issue](https://github.com/Shukolza/Library_Management/issues) и опишите функцию, которую вы хотите видеть в приложении.
+3. **Участие в разработке**.
+    См. [CONTRIBUTING](CONTRIBUTING.md)

@@ -1,29 +1,29 @@
-# Log
+# Лог
 log.txt
 admin_log.txt
 
-# snap2txt file
+# snap2txt файлы
 project_contents.txt
 
-# Python venv's folders
+# Папки виртуальных окружений
 venv/
 .venv/
 env/
 ENV/
 
-# Python cache
+# Кэш
 __pycache__/
 *.pyc
 *.pyo
 
-# Vscode settings
+# Настройки IDE
 .vscode/
 
-# System files
+# Системные файлы
 .DS_Store
 Thumbs.db
 
-#Pyinstaller
+# Pyinstaller
 *.spec
 dist/
 build/

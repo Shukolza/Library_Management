@@ -1,4 +1,4 @@
-# Library Management GUI System
+# Система управления библиотеками
 
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/Shukolza/Library_Management?style=flat-square)](https://github.com/Shukolza/Library_Management/tags)
 
@@ -6,121 +6,120 @@
 
 ![app logo](/img/book.png)
 
-## Short description
+## Краткое описание
 
-This is a simple GUI system for a library management system. It includes several interfaces:
+Это простая система с графическим интерфейсом для управления библиотеками. Включает несколько интерфейсов:
 
-* *Administrator* - for creating and managing **libraries**
-* *Worker* - for managing **books** and **clients** inside library
-* *Client* - for borrowing and returning **books**
-
----
-
-## Contents
-
-### 1. [About The Project](#about-the-project)
-
-### 2. [Installation](#installation)
-
-### 3. [Usage](#usage)
-
-### 4. [Configuration](#configuration)
-
-### 5. [Project roadmap](#roadmap)
-
-### 6. [Contribution](#contribution)
-
-### 7. [License](#license)
+- _Администратор_ - для создания и управления **библиотеками**
+- _Работник_ - для управления **книгами** и **клиентами** внутри библиотеки
+- _Клиент_ - для получения и возврата **книг**
 
 ---
 
-## About The Project
+## Содержание
 
-This project is a desktop application designed to provide a basic system for managing library information. Currently, it features the Administrator Graphical User Interface (GUI), built using Python and the standard Tkinter library, allowing for a native look and feel without external dependencies for the UI.
+### 1. [О проекте](#о-проекте)
 
-The core idea is to offer a straightforward tool for administrators to manage library records (such as adding new library locations). Key aspects of the current implementation include:
+### 2. [Установка](#установка)
 
-* **Secure Authentication:** Administrator access is protected using a hashed password mechanism (PBKDF2-HMAC-SHA256 with salting) to prevent unauthorized access.
-* **Simple Data Storage:** Library information and the administrator password hash are stored locally in a `libs_data.json` file, making the application self-contained and easy to set up for basic use cases.
-* **Activity Logging:** Key actions and potential errors are logged to a `(part_name)_log.txt` file for monitoring and debugging purposes.
+### 3. [Использование](#использование)
 
-As a pet project, it serves as a practical exercise in GUI development with Tkinter, data persistence using JSON, implementing basic security practices, OOP with inheritance and abstract classes, and structuring a multi-component Python application (with planned Client and Worker modules). It aims to solve the simple problem of needing a dedicated interface for basic library data management without requiring a complex database setup.
+### 4. [Конфигурация](#конфигурация)
+
+### 5. [План развития](#план-развития)
+
+### 6. [Участие в разработке](#участие-в-разработке)
+
+### 7. [Лицензия](#лицензия)
 
 ---
 
-## Installation
+## О проекте
 
-To run the application, you'll need Python 3 installed on your system. No external dependencies needed!
+Этот проект - это десктопное приложение, разработанное для обеспечения базовой системы управления информацией о библиотеках. В настоящее время оно включает графический интерфейс администратора (GUI), созданный с использованием Python и стандартной библиотеки Tkinter, что обеспечивает нативный внешний вид без внешних зависимостей для интерфейса.
 
-### From source code
+Основная идея - предложить простой инструмент для администраторов для управления записями о библиотеках (например, добавление новых библиотек). Ключевые аспекты текущей реализации включают:
 
-**Clone repository:**
+-   **Безопасная аутентификация:** Доступ администратора защищен механизмом хэширования паролей (PBKDF2-HMAC-SHA256 с солью) для предотвращения несанкционированного доступа.
+-   **Простое хранение данных:** Информация о библиотеках и хэш пароля администратора хранятся локально в файле `libs_data.json`, что делает приложение автономным и простым в настройке для базовых случаев использования.
+-   **Логирование активности:** Ключевые действия и потенциальные ошибки записываются в файл `(part_name)_log.txt` для мониторинга и отладки.
 
-``` bash
+Как пет-проект, он служит практическим упражнением в разработке GUI с Tkinter, сохранении данных с использованием JSON, реализации базовых практик безопасности, ООП с наследованием и абстрактными классами, и структурировании многокомпонентного Python-приложения (с планируемыми модулями Клиента и Работника). Он направлен на решение простой задачи необходимости выделенного интерфейса для базового управления данными библиотек без необходимости настройки сложной базы данных.
+
+---
+
+## Установка
+
+Для запуска приложения вам понадобится Python 3. Внешние зависимости не требуются!
+
+### Из исходного кода
+
+**Клонировать репозиторий:**
+
+```bash
 git clone https://github.com/Shukolza/Library_Management.git && cd Library_Management
 ```
 
-### From executable (only admin part)
+### Из исполняемого файла (только часть администратора)
 
-**Go to latest release page**
+**Перейти на страницу последнего релиза**
 
-[latest release](https://github.com/Shukolza/Library_Management/releases/tag/v0.4.0-admin-beta)
+[последний релиз](https://github.com/Shukolza/Library_Management/releases/tag/v0.4.0-admin-beta)
 
-**Download executable for your OS**
+**Скачать исполняемый файл для вашей ОС**
 
-*To launch on linux*: ```./LINUX-EXECUTABLE```
+_Для запуска на linux_: `./LINUX-EXECUTABLE`
 
 ---
 
-## Usage (if installed from source code)
+## Использование (если установлено из исходного кода)
 
-### Run interface you need
+### Запустите нужный интерфейс
 
-**For administrator:** (Mostly implemented)
+**Для администратора:** (В основном реализовано)
 
-``` bash
+```bash
 python3 administrator_gui.py
 ```
 
-**For worker:** (Not implemented yet)
+**Для работника:** (Ещё не реализовано)
 
-``` bash
+```bash
 python3 worker.py
 ```
 
-**For client:** (Not implemented yet)
+**Для клиента:** (Ещё не реализовано)
 
-``` bash
+```bash
 python3 client.py
 ```
 
 ---
 
-## Configuration
+## Конфигурация
 
-* **DB and icon paths configuration**
-All paths for external files of application are stored in (config.py). The default content:
+-   **Конфигурация путей к БД и иконке**
+    Все пути к внешним файлам приложения хранятся в (config.py). По умолчанию содержит:
 
-``` python
-"""Configuration file. Contains DB_PATH & ICON_PATH"""
+```python
+"""Файл конфигурации. Содержит DB_PATH и ICON_PATH"""
 
 from logic.db_logic import resource_path
 from pathlib import Path
 
-# CHANGE THIS TO USE CUSTOM DB / ИЗМЕНИТЕ ЭТО ДЛЯ СВОЕЙ БД
+# ИЗМЕНИТЕ ЭТО ДЛЯ СВОЕЙ БД / CHANGE THIS TO USE CUSTOM DB
 DB_PATH: Path = resource_path("./libs_data.json")
 
-# CHANGE THIS TO USE CUSTOM ICON / ИЗМЕНИТЕ ЭТО ДЛЯ СВОЕЙ ИКОНКИ
+# ИЗМЕНИТЕ ЭТО ДЛЯ СВОЕЙ ИКОНКИ / CHANGE THIS TO USE CUSTOM ICON
 ICON_PATH: Path = resource_path("./img/book.png")
-
 ```
 
-* **The database file**
-Database file is libs_data.json
-All instruments you need to manage it is in GUI, but you can also change it manually.
-The default contents:
+-   **Файл базы данных**
+    Файл базы данных - libs_data.json
+    Все инструменты для управления им есть в GUI, но вы также можете изменить его вручную.
+    Содержимое по умолчанию:
 
-``` JSON
+```JSON
 {
     "libraries_data": [],
     "administrator_password": ""
@@ -129,18 +128,18 @@ The default contents:
 
 ---
 
-## Roadmap
+## План развития
 
-See the [ROADMAP](ROADMAP.md) file
-
----
-
-## Contribution
-
-Contributors are always welcome - see the [CONTRIBUTING](CONTRIBUTING.md) file for details.
+См. файл [ROADMAP](ROADMAP.md)
 
 ---
 
-## License
+## Участие в разработке
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Участники всегда приветствуются - см. файл [CONTRIBUTING](CONTRIBUTING.md) для подробностей.
+
+---
+
+## Лицензия
+
+Этот проект лицензирован под MIT License - см. файл [LICENSE](LICENSE) для подробностей.

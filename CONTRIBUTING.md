@@ -1,34 +1,34 @@
-# Contributing to Library Management
+# Участие в разработке Library Management
 
-Thank you for considering contributing to this project! Any contributions are greatly appreciated.
+Спасибо, что рассматриваете возможность внести свой вклад в проект! Я ценю любую помощь.
 
-## How to Contribute
+## Как внести свой вклад
 
-1. **Fork the repository** to your own GitHub account.
-2. **Clone** your fork locally: `git clone https://github.com/YOUR_USERNAME/Library_Management.git`
-3. **Create a new branch** for your changes: `git switch -c feat/your-feature-name` or `git switch -c fix/your-bug-fix`. Please use descriptive branch names.
-4. **Make your changes** and commit them with clear commit messages.
-5. **Push** your changes to your fork: `git push -u origin feat/your-feature-name`
-6. **Open a Pull Request** from your branch to the `main` branch of the original `Shukolza/Library_Management` repository.
-7. Clearly describe your changes in the Pull Request description.
-8. Wait for review and discussion.
+1. **Сделайте форк репозитория** на свой GitHub аккаунт.
+2. **Склонируйте** ваш форк локально: `git clone https://github.com/YOUR_USERNAME/Library_Management.git`
+3. **Создайте новую ветку** для ваших изменений: `git switch -c feat/название-вашей-функции` или `git switch -c fix/исправление-бага`. Пожалуйста, используйте описательные названия веток.
+4. **Внесите изменения** и зафиксируйте их с понятными сообщениями коммитов.
+5. **Отправьте** ваши изменения в ваш форк: `git push -u origin feat/название-вашей-функции`
+6. **Создайте Pull Request** из вашей ветки в ветку `main` оригинального репозитория `Shukolza/Library_Management`.
+7. Четко опишите ваши изменения в описании Pull Request.
+8. Ожидайте проверки и обсуждения.
 
-## Branchgig strategy
+## Стратегия ветвления
 
-* The `main` branch is the primary development branch and should always be stable.
-* All development work (new features, bug fixes) must be done in separate branches.
-* Pull Requests should be made against the `main` branch.
+- Ветка `main` является основной веткой разработки и должна всегда быть стабильной.
+- Вся разработка (новые функции, исправления багов) должна вестись в отдельных ветках.
+- Pull Request'ы должны создаваться в ветку `main`.
 
-## Reporting Bugs
+## Сообщения об ошибках
 
-If you find a bug, please open an [Issue](https://github.com/Shukolza/Library_Management/issues) and provide as much detail as possible, including:
+Если вы нашли ошибку, пожалуйста, создайте [Issue](https://github.com/Shukolza/Library_Management/issues) и предоставьте как можно больше деталей, включая:
 
-* Steps to reproduce the bug.
-* Expected behavior.
-* Actual behavior.
-* Screenshots (if applicable).
-* The `(part_name)_log.txt` file (or logs for other components when they are added).
+- Шаги для воспроизведения ошибки.
+- Ожидаемое поведение.
+- Фактическое поведение.
+- Скриншоты (если применимо).
+- Файл `(имя_части)_log.txt` (или логи других компонентов, когда они будут добавлены).
 
-## Suggesting Enhancements
+## Предложения по улучшению
 
-If you have an idea for an enhancement, feel free to open an [Issue](https://github.com/Shukolza/Library_Management/issues) to discuss it first.
+Если у вас есть идея для улучшения, не стесняйтесь создать [Issue](https://github.com/Shukolza/Library_Management/issues) для её обсуждения.

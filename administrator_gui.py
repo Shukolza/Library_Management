@@ -1,4 +1,4 @@
-"""Administrator interface"""
+"""Интерфейс администратора"""
 
 import sys
 import logging
@@ -18,46 +18,46 @@ from logic.gui_utils import resource_path, setup_logging
 
 if __name__ == "__main__":
     setup_logging(resource_path("./admin_log.txt"))
-    logging.info("Started.")
+    logging.info("Запуск.")
     libraries_db = LibraryDatabase()
     try:
         libraries_db.load_data(DB_PATH)
-        logging.info("Data loaded. Requesting password...")
+        logging.info("Данные загружены. Запрос пароля...")
 
         if ask_for_password(libraries_db):
-            logging.info("Password accepted. Initializing root...")
+            logging.info("Пароль принят. Инициализация корневого окна...")
             root = AdminMainWindow(libraries_db)
             root.mainloop()
         else:
-            logging.warning("Dialog closed. Interputting...")
+            logging.warning("Диалог закрыт. Прерывание...")
             sys.exit(0)
 
     except InvalidDatabaseStructureError as e:
-        logging.exception("Database structure error")
+        logging.exception("Ошибка структуры базы данных")
         messagebox.showerror(  # type: ignore
-            "Error",
-            f"Wrong DB structure detected. Application will be interputted.\n{e}\n Contact system administrator",
+            "Ошибка",
+            f"Обнаружена неверная структура БД. Приложение будет прервано.\n{e}\n Обратитесь к системному администратору",
         )
         sys.exit(1)
 
     except DatabaseLoadError as e:
-        logging.exception("Database load error")
+        logging.exception("Ошибка загрузки базы данных")
         messagebox.showerror(  # type: ignore
-            "Error",
-            f"Failed to load data from DB. Application will be interputted.\n{e}\n Contact system administrator",
+            "Ошибка",
+            f"Не удалось загрузить данные из БД. Приложение будет прервано.\n{e}\n Обратитесь к системному администратору",
         )
         sys.exit(1)
 
     except Exception as e:
-        logging.exception("A critical unexpected error occured, interputting...")
+        logging.exception("Произошла критическая непредвиденная ошибка, прерывание...")
         try:
             error_root = tk.Tk()
             error_root.withdraw()
 
-            messagebox.showerror("CRITICAL ERROR", f"A critical error occurred:\n{e}\n\nApplication will be interputted\n Contact system administrator")  # type: ignore
+            messagebox.showerror("КРИТИЧЕСКАЯ ОШИБКА", f"Произошла критическая ошибка:\n{e}\n\nПриложение будет прервано\n Обратитесь к системному администратору")  # type: ignore
             error_root.destroy()
 
         except Exception:
-            logging.exception("Failed to show critical error msgbox:")
+            logging.exception("Не удалось показать окно критической ошибки:")
 
         sys.exit(1)

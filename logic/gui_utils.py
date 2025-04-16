@@ -1,4 +1,4 @@
-"""GUI utilities"""
+"""Утилиты графического интерфейса"""
 
 import sys
 import logging
@@ -12,10 +12,10 @@ def center_window(
     width: int | None = None,
     height: int | None = None,
 ) -> None:
-    """Centers a Tk or Toplevel relative to its parent or the screen."""
-    logging.info(f"Centralizing {window_to_center}...")
+    """Центрирует окно Tk или Toplevel относительно родителя или экрана."""
+    logging.info(f"Центрирование {window_to_center}...")
     logging.debug(
-        f"Centralizing with params:\n{window_to_center}\n{parent}\n{width}\n{height}"
+        f"Центрирование с параметрами:\n{window_to_center}\n{parent}\n{width}\n{height}"
     )
     window_to_center.update_idletasks()
 
@@ -23,7 +23,7 @@ def center_window(
     win_height = height if height else window_to_center.winfo_reqheight()
 
     if parent:
-        # Parent centralizing
+        # Центрирование относительно родителя
         parent_x = parent.winfo_x()
         parent_y = parent.winfo_y()
         parent_width = parent.winfo_width()
@@ -33,7 +33,7 @@ def center_window(
         ref_width = parent_width
         ref_height = parent_height
     else:
-        # Screen centralizing
+        # Центрирование относительно экрана
         ref_x = 0
         ref_y = 0
         ref_width = window_to_center.winfo_screenwidth()
@@ -42,7 +42,7 @@ def center_window(
     x = ref_x + (ref_width // 2) - (win_width // 2)
     y = ref_y + (ref_height // 2) - (win_height // 2)
 
-    # Check if not out of screen
+    # Проверка, чтобы окно не вышло за пределы экрана
     screen_width = window_to_center.winfo_screenwidth()
     screen_height = window_to_center.winfo_screenheight()
     if x + win_width > screen_width:
@@ -58,7 +58,7 @@ def center_window(
 
 
 def setup_logging(log_file: Path) -> None:
-    """Logging setup"""
+    """Настройка логирования"""
     log_level = logging.DEBUG
     log_format = "%(asctime)s - %(levelname)s - %(module)s - %(message)s"
 
@@ -74,12 +74,12 @@ def setup_logging(log_file: Path) -> None:
 
 
 def resource_path(relative_path: str) -> Path:
-    """Get the correct file path for both development and compiled EXE."""
+    """Получить корректный путь к файлу для разработки и скомпилированного EXE."""
     try:
-        # If compiled (PyInstaller)
+        # Если скомпилировано (PyInstaller)
         base_path: Path = Path(sys._MEIPASS)  # type: ignore
     except AttributeError:
-        # If launched via Python
+        # Если запущено через Python
         base_path: Path = Path(__file__).parent.parent
 
     full_path = base_path / relative_path
