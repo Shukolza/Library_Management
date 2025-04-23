@@ -1,4 +1,22 @@
 .
-└── tree.txt
+├── administrator_gui.py
+├── client.py
+├── config.py
+├── CONTRIBUTING.md
+├── demonstration
+│   └── tree.txt
+├── img
+│   └── book.png
+├── libs_data.json
+├── LICENSE
+├── logic
+│   ├── db_logic.py
+│   ├── gui_logic.py
+│   ├── gui_utils.py
+│   ├── __init__.py
+│   ├── loading_window.py
+├── README.md
+├── ROADMAP.md
+└── worker.py
 
-1 directory, 1 file
+4 directories, 16 files
